@@ -1,66 +1,20 @@
-# data-paginate
-this is pagination hook with array of data
+# Animated Components
 
-import React from 'react';
-import { usePagination } from 'data-paginate';
+**Animated Components** is a collection of customizable React components built with Framer Motion for smooth animations. It provides buttons and icon buttons with different styles, sizes, and interactive animations.
 
-const data = [
-    { id: 1, name: 'Item 1' },
-    { id: 2, name: 'Item 2' },
-    // Add more items as needed
-];
+---
 
-function MyComponent() {
-    const limit = 10; // Number of items per page
-    const { paginatedData, page, totalPages, nextPage, prevPage, goToPage } = usePagination(data, limit);
+## Features
 
-    return (
-        <div>
-            <ul>
-                {paginatedData.map((item) => (
-                    <li key={item.id}>{item.name}</li>
-                ))}
-            </ul>
-            <div>
-                <button onClick={prevPage} disabled={page === 1}>
-                    Previous
-                </button>
-                <span>
-                    Page {page} of {totalPages}
-                </span>
-                <button onClick={nextPage} disabled={page === totalPages}>
-                    Next
-                </button>
-            </div>
-            <div>
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button key={index + 1} onClick={() => goToPage(index + 1)}>
-                        {index + 1}
-                    </button>
-                ))}
-            </div>
-        </div>
-    );
-}
+- **Customizable Buttons**: Supports different variants (`solid`, `outline`, `ghost`) and colors (`primary`, `secondary`).
+- **Icon Button**: Use any custom icon inside the button.
+- **Framer Motion Animations**: Interactive hover and tap animations to enhance user experience.
 
-export default MyComponent;
+---
 
-# Props
-PaginatedComponent Props
-paginatedData: Array of items to display on the current page.
-page: Current page number.
-totalPages: Total number of pages.
-onNextPage: Function to handle next page navigation.
-onPrevPage: Function to handle previous page navigation.
-onGoToPage: Function to handle navigating to a specific page.
-usePagination Hook Parameters
-data: Array of items to paginate.
-limit: Number of items per page.
-initialPage: Initial page number (default: 1).
-usePagination Hook Return Value
-paginatedData: Array of items for the current page.
-page: Current page number.
-totalPages: Total number of pages.
-nextPage: Function to navigate to the next page.
-prevPage: Function to navigate to the previous page.
-goToPage: Function to navigate to a specific page.
+## Installation
+
+To install **my-animated-components** in your React project, run the following command:
+
+```bash
+npm install my-animated-components
