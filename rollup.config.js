@@ -9,7 +9,7 @@ export default defineConfig({
     format: 'es',
     name: 'my-animated-components',
   },
-  external: ['react', 'react-dom', 'tailwindcss', 'framer-motion','fs', 'path'],
+  external: ['react', 'react-dom', 'tailwindcss', 'framer-motion'],
   plugins: [
     typescript({ tsconfig: 'tsconfig.json' }),
     postcss({
