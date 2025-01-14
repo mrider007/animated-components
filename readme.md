@@ -43,9 +43,12 @@ Heading
 Text
 
 ## props 
-color (optional): Sets the color of the component. Available values: primary, secondary, success, danger, warning, info.
-className
-children
+onClick (function): The function to call when the button is clicked.
+disabled (boolean): Disables the button.
+variant (string): The button style, one of solid, outline, or ghost.
+color (string): The button color, one of primary, secondary, success, danger, warning, or info.
+size (string): The size of the button, one of xs, sm, md, lg, or xl.
+motionVariant (string): A predefined motion animation for the button (fadeIn is the default).
 
 ## Example Usage
 import { Button } from 'my-animated-components';
