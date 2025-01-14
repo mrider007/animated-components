@@ -7,7 +7,7 @@ export default defineConfig({
   output: {
     dir: 'dist',
     format: 'es',
-    name: 'animated-components',
+    name: 'my-animated-components',
   },
   external: ['react', 'react-dom', 'tailwindcss', 'framer-motion','fs', 'path'],
   plugins: [
