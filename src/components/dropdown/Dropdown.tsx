@@ -1,4 +1,5 @@
-'use client'
+
+'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,5 +31,23 @@ export const Dropdown: React.FC<DropdownProps> = ({ children, className = '', tr
       <div>
         <button
           type="button"
-          onClick={() => setIsOpen(!
-
+          onClick={() => setIsOpen(prev => !prev)}  // Fixed the toggle syntax
+        >
+          {trigger}
+        </button>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {children}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
