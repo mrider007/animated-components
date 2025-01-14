@@ -1,10 +1,21 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BaseProps, WithChildren, ColorProps, SizeProps } from '../../../types/common';
+import { motionVariants } from '../../utils/motionVariants'; // Import motion variants
 
-interface BadgeProps extends BaseProps, WithChildren, ColorProps, SizeProps {}
+interface BadgeProps extends BaseProps, WithChildren, ColorProps, SizeProps {
+  motionVariant?: keyof typeof motionVariants; // Allow motion variant selection
+}
 
-export const Badge: React.FC<BadgeProps> = ({ children, className = '', color = 'primary', size = 'md' }) => {
+export const Badge: React.FC<BadgeProps> = ({
+  children,
+  className = '',
+  color = 'primary',
+  size = 'md',
+  motionVariant = 'fadeIn', // Default motion variant
+}) => {
   const colorClasses = {
     primary: 'bg-blue-100 text-blue-800',
     secondary: 'bg-gray-100 text-gray-800',
@@ -25,12 +36,13 @@ export const Badge: React.FC<BadgeProps> = ({ children, className = '', color = 
   return (
     <motion.span
       className={`inline-flex items-center font-medium rounded-full ${colorClasses[color]} ${sizeClasses[size]} ${className}`}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
+      variants={motionVariants[motionVariant]} // Apply motion variant here
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
       transition={{ duration: 0.3 }}
     >
       {children}
     </motion.span>
   );
 };
-

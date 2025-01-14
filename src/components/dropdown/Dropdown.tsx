@@ -1,15 +1,16 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { motionVariants } from '../../utils/motionVariants'; 
 import { BaseProps, WithChildren } from '../../../types/common';
 
 interface DropdownProps extends BaseProps, WithChildren {
   trigger: React.ReactNode;
+  motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
 }
 
-export const Dropdown: React.FC<DropdownProps> = ({ children, className = '', trigger }) => {
+export const Dropdown: React.FC<DropdownProps> = ({ children, className = '', trigger, motionVariant = 'fadeIn' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -31,16 +32,17 @@ export const Dropdown: React.FC<DropdownProps> = ({ children, className = '', tr
       <div>
         <button
           type="button"
-          onClick={() => setIsOpen(prev => !prev)}  // Fixed the toggle syntax
+          onClick={() => setIsOpen(prev => !prev)}  // Toggle state to show/hide
         >
           {trigger}
         </button>
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              variants={motionVariants[motionVariant]} 
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
               transition={{ duration: 0.3 }}
             >
               {children}

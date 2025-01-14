@@ -1,12 +1,22 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BaseProps, WithChildren, ColorProps } from '../../../types/common';
+import { motionVariants } from '../../utils/motionVariants';
 
 interface AlertProps extends BaseProps, WithChildren, ColorProps {
   onClose?: () => void;
+  motionVariant?: keyof typeof motionVariants;
 }
 
-export const Alert: React.FC<AlertProps> = ({ children, className = '', color = 'primary', onClose }) => {
+export const Alert: React.FC<AlertProps> = ({
+  children,
+  className = '',
+  color = 'primary',
+  onClose,
+  motionVariant = 'fadeIn', // Default motion variant
+}) => {
   const colorClasses = {
     primary: 'bg-blue-100 text-blue-700',
     secondary: 'bg-gray-100 text-gray-700',
@@ -20,9 +30,10 @@ export const Alert: React.FC<AlertProps> = ({ children, className = '', color = 
     <motion.div
       className={`p-4 rounded-md ${colorClasses[color]} ${className}`}
       role="alert"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
+      variants={motionVariants[motionVariant]} // Apply motion variant here
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
       transition={{ duration: 0.3 }}
     >
       <div className="flex">
@@ -36,7 +47,11 @@ export const Alert: React.FC<AlertProps> = ({ children, className = '', color = 
           >
             <span className="sr-only">Close</span>
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              ></path>
             </svg>
           </button>
         )}
@@ -44,4 +59,3 @@ export const Alert: React.FC<AlertProps> = ({ children, className = '', color = 
     </motion.div>
   );
 };
-

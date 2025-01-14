@@ -1,8 +1,9 @@
-'use client'
+'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BaseProps } from '../../../types/common';
+import { motionVariants } from '../../utils/motionVariants';
 
 interface RangeSliderProps extends BaseProps {
   min: number;
@@ -10,12 +11,32 @@ interface RangeSliderProps extends BaseProps {
   values: [number, number];
   onChange: (values: [number, number]) => void;
   step?: number;
+  color?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info'; // Added color support
+  motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
 }
 
-export const RangeSlider: React.FC<RangeSliderProps> = ({ className = '', min, max, values, onChange, step = 1 }) => {
+export const RangeSlider: React.FC<RangeSliderProps> = ({
+  className = '',
+  min,
+  max,
+  values,
+  onChange,
+  step = 1,
+  color = 'primary', // Default color set to primary
+  motionVariant = 'fadeIn', // Default motion variant
+}) => {
   const [minValue, maxValue] = values;
   const minPercentage = ((minValue - min) / (max - min)) * 100;
   const maxPercentage = ((maxValue - min) / (max - min)) * 100;
+
+  const colorClasses = {
+    primary: 'bg-blue-600',
+    secondary: 'bg-gray-600',
+    success: 'bg-green-600',
+    danger: 'bg-red-600',
+    warning: 'bg-yellow-600',
+    info: 'bg-indigo-600',
+  };
 
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newMinValue = Math.min(Number(e.target.value), maxValue - step);
@@ -30,10 +51,11 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({ className = '', min, m
   return (
     <div className={`relative w-full h-2 bg-gray-200 rounded-full ${className}`}>
       <motion.div
-        className="absolute h-full bg-blue-600 rounded-full"
+        className={`absolute h-full ${colorClasses[color]} rounded-full`}
         style={{ left: `${minPercentage}%`, right: `${100 - maxPercentage}%` }}
-        initial={{ left: 0, right: '100%' }}
-        animate={{ left: `${minPercentage}%`, right: `${100 - maxPercentage}%` }}
+        variants={motionVariants[motionVariant]} // Use motion variant
+        initial="hidden"
+        animate="visible"
         transition={{ duration: 0.3 }}
       ></motion.div>
       <input
@@ -57,4 +79,3 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({ className = '', min, m
     </div>
   );
 };
-

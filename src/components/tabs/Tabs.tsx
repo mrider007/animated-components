@@ -1,15 +1,34 @@
-'use client'
+'use client';
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BaseProps } from '../../../types/common';
+import { motionVariants } from '../../utils/motionVariants'; 
+import { BaseProps, WithChildren } from '../../../types/common';
 
-interface TabsProps extends BaseProps {
+type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+
+interface TabsProps extends BaseProps, WithChildren {
   tabs: { label: string; content: React.ReactNode }[];
+  motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
+  color?: Color;
 }
 
-export const Tabs: React.FC<TabsProps> = ({ className = '', tabs }) => {
+export const Tabs: React.FC<TabsProps> = ({
+  className = '',
+  tabs,
+  motionVariant = 'fadeIn', // Default motion variant
+  color = 'primary', // Color customization
+}) => {
   const [activeTab, setActiveTab] = useState(0);
+
+  const colorClasses = {
+    primary: 'text-blue-600 border-blue-500',
+    secondary: 'text-gray-600 border-gray-500',
+    success: 'text-green-600 border-green-500',
+    danger: 'text-red-600 border-red-500',
+    warning: 'text-yellow-600 border-yellow-500',
+    info: 'text-blue-400 border-blue-400',
+  };
 
   return (
     <div className={className}>
@@ -21,7 +40,7 @@ export const Tabs: React.FC<TabsProps> = ({ className = '', tabs }) => {
               className={`
                 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
                 ${activeTab === index
-                  ? 'border-blue-500 text-blue-600'
+                  ? `${colorClasses[color]}`
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
               `}
               onClick={() => setActiveTab(index)}
@@ -36,6 +55,7 @@ export const Tabs: React.FC<TabsProps> = ({ className = '', tabs }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        variants={motionVariants[motionVariant]}
         className="mt-4"
       >
         {tabs[activeTab].content}
@@ -43,4 +63,3 @@ export const Tabs: React.FC<TabsProps> = ({ className = '', tabs }) => {
     </div>
   );
 };
-
