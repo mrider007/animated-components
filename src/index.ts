@@ -4,15 +4,15 @@ import { loadComponents } from './utils/Listfiles';
 // Set the path to your components directory
 const componentsPath = './components';
 
-// Create an object to hold your dynamic exports
-const dynamicExports: { [key: string]: any } = {};
+let componentsExports: Record<string, any> = {};
 
-// Export components dynamically
+// Dynamically load the components
 loadComponents(componentsPath)
   .then((components) => {
     components.forEach(({ name, component }: any) => {
       if (component) {
-        dynamicExports[name] = component;
+        // Dynamically assign each component to the componentsExports object
+        componentsExports[name] = component;
       }
     });
   })
@@ -20,5 +20,5 @@ loadComponents(componentsPath)
     console.error('Error loading components:', err);
   });
 
-
-export { dynamicExports };
+// After loading, export all components from the componentsExports object
+export { componentsExports };
