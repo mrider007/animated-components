@@ -1,12 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BaseProps, ColorProps, SizeProps } from '../../../types/common';
+import { BaseProps, SizeProps } from '../../../types/common';
 
-interface IconButtonProps extends BaseProps, ColorProps, SizeProps {
+type Color = 'primary' | 'secondary'; // restrict to 'primary' and 'secondary'
+
+interface IconButtonProps extends BaseProps, SizeProps {
   icon: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   variant?: 'solid' | 'outline' | 'ghost';
+  color?: Color;
 }
 
 export const IconButton: React.FC<IconButtonProps> = ({
@@ -53,4 +56,3 @@ export const IconButton: React.FC<IconButtonProps> = ({
     </motion.button>
   );
 };
-

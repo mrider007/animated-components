@@ -2,10 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { BaseProps, WithChildren, ColorProps, SizeProps } from '../../../types/common';
 
-interface ButtonProps extends BaseProps, WithChildren, ColorProps, SizeProps {
+type Color = 'primary' | 'secondary'; // restrict to 'primary' and 'secondary'
+
+interface ButtonProps extends BaseProps, WithChildren, SizeProps {
   onClick?: () => void;
   disabled?: boolean;
   variant?: 'solid' | 'outline' | 'ghost';
+  color?: Color;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -52,4 +55,3 @@ export const Button: React.FC<ButtonProps> = ({
     </motion.button>
   );
 };
-
