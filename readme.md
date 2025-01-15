@@ -67,7 +67,7 @@ import { motionVariants } from 'my-animated-components';
 
 const MyComponent = () => {
   return (
-    <Button color="primary" size="md" className="my-custom-class" motionVariant="motionVariants?.slideUp">
+    <Button color="primary" size="md" className="my-custom-class" motionVariant={motionVariants.slideUp}>
       Click Me
     </Button>
   );
