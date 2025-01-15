@@ -50,6 +50,8 @@ import { Tooltip } from './components/tooltip/Tooltip';
 import { Heading } from './components/typography/Heading';
 import { Text } from './components/typography/Text';
 
+import { motionVariants } from './utils/motionVariants';
+
 // Export all components
 export {
   Button,
@@ -100,5 +102,6 @@ export {
   Tabs,
   Tooltip,
   Heading,
-  Text
+  Text,
+  motionVariants
 };
