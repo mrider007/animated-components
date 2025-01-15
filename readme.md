@@ -63,11 +63,10 @@ Here are the common props for the **Button** component:
 
 ```tsx
 import { Button } from 'my-animated-components';
-import { motionVariants } from 'my-animated-components';
 
 const MyComponent = () => {
   return (
-    <Button color="primary" size="md" className="my-custom-class" motionVariant={motionVariants.slideUp}>
+    <Button color="primary" size="md" className="my-custom-class" motionVariant='slideUp'>
       Click Me
     </Button>
   );
