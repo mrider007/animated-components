@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# Allow dist folder
+!dist/
+!package.json
+!README.md
+!LICENSE
