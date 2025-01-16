@@ -6,4 +6,5 @@
 !package.json
 !README.md
 !LICENSE
-!types
+!types/
+!tsconfig.json
