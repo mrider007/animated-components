@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { motionVariants } from '../../utils/motionVariants'; // Reusable motion variants
 import { BaseProps, SizeProps } from '../../../types/common';
 
-type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info'
 
 
 interface IconButtonProps extends BaseProps, SizeProps {
