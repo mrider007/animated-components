@@ -3,6 +3,9 @@
 **My Animated Components** is a collection of customizable React components built with Framer Motion for smooth animations. It provides buttons, icon buttons, and other interactive UI elements with different styles, sizes, and animations.
 
 ---
+## Documentation
+
+For detailed documentation and examples, visit the [official documentation](https://mukeshdev.vercel.app/my-animated-components).
 
 ## Features
 
