@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BaseProps } from '../../../types/common';
-import { motionVariants } from '../../utils/motionVariants'; // Import motion variants
+import { motionVariants } from '../../utils/motionVariants';
 
 interface BreadcrumbProps extends BaseProps {
   items: { label: string; href: string }[];
