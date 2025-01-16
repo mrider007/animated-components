@@ -16,26 +16,46 @@ export const Badge: React.FC<BadgeProps> = ({
   size = 'md',
   motionVariant = 'fadeIn', // Default motion variant
 }) => {
-  const colorClasses = {
-    primary: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-gray-100 text-gray-800',
-    success: 'bg-green-100 text-green-800',
-    danger: 'bg-red-100 text-red-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    info: 'bg-indigo-100 text-indigo-800',
+  // Define the colors
+  const colorStyles: { [key: string]: string } = {
+    primary: '#E0F7FA',  // bg-blue-100
+    secondary: '#F1F1F1',  // bg-gray-100
+    success: '#E8F5E9',  // bg-green-100
+    danger: '#FFEBEE',  // bg-red-100
+    warning: '#FFFDE7',  // bg-yellow-100
+    info: '#E8EAF6',  // bg-indigo-100
   };
 
-  const sizeClasses = {
-    xs: 'px-2 py-0.5 text-xs',
-    sm: 'px-2.5 py-0.5 text-sm',
-    md: 'px-3 py-1 text-sm',
-    lg: 'px-3.5 py-1.5 text-base',
-    xl: 'px-4 py-2 text-lg',
+  const textColor: { [key: string]: string } = {
+    primary: '#00796B',  // text-blue-800
+    secondary: '#757575',  // text-gray-800
+    success: '#388E3C',  // text-green-800
+    danger: '#C62828',  // text-red-800
+    warning: '#FBC02D',  // text-yellow-800
+    info: '#1976D2',  // text-indigo-800
+  };
+
+  // Define the sizes
+  const sizeStyles: { [key: string]: { padding: string; fontSize: string } } = {
+    xs: { padding: '0.125rem 0.5rem', fontSize: '0.75rem' },
+    sm: { padding: '0.25rem 0.75rem', fontSize: '0.875rem' },
+    md: { padding: '0.375rem 1rem', fontSize: '1rem' },
+    lg: { padding: '0.5rem 1.25rem', fontSize: '1.125rem' },
+    xl: { padding: '0.625rem 1.5rem', fontSize: '1.25rem' },
+  };
+
+  // Generate custom styles dynamically
+  const customStyle = {
+    backgroundColor: colorStyles[color] || colorStyles.primary,
+    color: textColor[color] || textColor.primary,
+    padding: sizeStyles[size].padding,
+    fontSize: sizeStyles[size].fontSize,
   };
 
   return (
     <motion.span
-      className={`inline-flex items-center font-medium rounded-full ${colorClasses[color]} ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center font-medium rounded-full ${className}`}
+      style={customStyle} // Apply dynamic inline styles here
       variants={motionVariants[motionVariant]} // Apply motion variant here
       initial="hidden"
       animate="visible"
