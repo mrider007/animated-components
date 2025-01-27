@@ -21,12 +21,12 @@ export const Table: React.FC<TableProps> = ({
   const baseClasses = 'overflow-x-auto';
 
   const colorClasses = {
-    primary: 'border-blue-600 text-blue-600',
-    secondary: 'border-gray-600 text-gray-600',
-    success: 'border-green-600 text-green-600',
-    danger: 'border-red-600 text-red-600',
-    warning: 'border-yellow-500 text-yellow-500',
-    info: 'border-blue-400 text-blue-400',
+    primary: 'text-blue-600 border-blue-600 hover:bg-blue-100',
+    secondary: 'text-gray-600 border-gray-600 hover:bg-gray-100',
+    success: 'text-green-600 border-green-600 hover:bg-green-100',
+    danger: 'text-red-600 border-red-600 hover:bg-red-100',
+    warning: 'text-yellow-500 border-yellow-500 hover:bg-yellow-100',
+    info: 'text-blue-400 border-blue-400 hover:bg-blue-50',
   };
 
   return (
@@ -36,6 +36,7 @@ export const Table: React.FC<TableProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       variants={motionVariants[motionVariant]}
+      
     >
       <table className="min-w-full divide-y divide-gray-200">
         {children}

@@ -1,10 +1,16 @@
 # My Animated Components
 
 A comprehensive React component library with built-in animations and customization options.
+![npm](https://img.shields.io/npm/v/my-animated-components)
+![downloads](https://img.shields.io/npm/dm/my-animated-components)
 
 ## Documentation
 
 For detailed documentation and examples, visit the [official documentation](https://mukeshdev.vercel.app/my-animated-components).
+
+## Support Me!
+
+For Your Support [Visit](https://buymeacoffee.com/mrider007).
 
 ## Features
 
@@ -97,9 +103,6 @@ Most components accept props for customization, including:
 - `size`: Usually 'xs', 'sm', 'md', 'lg', 'xl'
 - `motionVariant`: Animation variant (e.g., 'fadeIn', 'slideUp', 'zoomIn')
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 

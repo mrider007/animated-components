@@ -12,7 +12,7 @@ interface RadioProps extends BaseProps, SizeProps {
   checked?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   color?: Color;
-  motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
+  motionVariant?: keyof typeof motionVariants;
 }
 
 export const Radio: React.FC<RadioProps> = ({
@@ -22,21 +22,23 @@ export const Radio: React.FC<RadioProps> = ({
   value,
   checked,
   onChange,
-  color = 'primary',
+  color = 'primary', 
   size = 'md',
-  motionVariant = 'fadeIn', // Default motion variant
+  motionVariant = 'fadeIn',
 }) => {
-  const baseClasses = 'inline-flex items-center';
+  const baseClasses = 'inline-flex items-center cursor-pointer';
 
+  // Dynamic color classes
   const colorClasses = {
-    primary: 'text-blue-600',
-    secondary: 'text-gray-600',
-    success: 'text-green-600',
-    danger: 'text-red-600',
-    warning: 'text-yellow-500',
-    info: 'text-blue-400',
+    primary: 'text-blue-600 focus:ring-blue-500 checked:border-blue-600 hover:text-blue-700',
+    secondary: 'text-gray-600 focus:ring-gray-500 checked:border-gray-600 hover:text-gray-700',
+    success: 'text-green-600 focus:ring-green-500 checked:border-green-600 hover:text-green-700',
+    danger: 'text-red-600 focus:ring-red-500 checked:border-red-600 hover:text-red-700',
+    warning: 'text-yellow-500 focus:ring-yellow-400 checked:border-yellow-500 hover:text-yellow-600',
+    info: 'text-blue-400 focus:ring-blue-300 checked:border-blue-400 hover:text-blue-500',
   };
 
+  // Dynamic size classes
   const sizeClasses = {
     xs: 'h-4 w-4',
     sm: 'h-5 w-5',
@@ -47,21 +49,26 @@ export const Radio: React.FC<RadioProps> = ({
 
   return (
     <motion.label
-      className={`${baseClasses} ${colorClasses[color]} ${sizeClasses[size]} ${className}`}
+      className={`${baseClasses} ${className}`}
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      variants={motionVariants[motionVariant]} // Using motion variant from utils
       transition={{ duration: 0.3 }}
+      variants={motionVariants[motionVariant]} // Using motion variant from utils
     >
+      {/* Radio Input */}
       <input
         type="radio"
-        className="form-radio"
         name={name}
         value={value}
         checked={checked}
         onChange={onChange}
+        className={`form-radio rounded-full border-2 focus:ring-2 ${colorClasses[color]} ${
+          sizeClasses[size]
+        }`}
       />
-      <span className="ml-2 text-gray-700">{label}</span>
+      {/* Label */}
+      <span className={`ml-2 font-medium ${colorClasses[color]}`}>{label}</span>
     </motion.label>
   );
 };
+
