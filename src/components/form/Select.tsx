@@ -10,7 +10,7 @@ interface SelectProps extends BaseProps, SizeProps {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   color?: Color;
-  motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
+  motionVariant?: keyof typeof motionVariants;
 }
 
 export const Select: React.FC<SelectProps> = ({

@@ -31,7 +31,7 @@ export const Offcanvas: React.FC<OffcanvasProps> = ({ children, className = '', 
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
             <motion.div
-              className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+              className="absolute inset-0 bg-opacity-75 transition-opacity"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

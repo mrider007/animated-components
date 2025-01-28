@@ -5,12 +5,25 @@ import { motion } from 'framer-motion';
 import { BaseProps } from '../../../types/common';
 import { motionVariants } from '../../utils/motionVariants';
 
+type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+
 interface BreadcrumbProps extends BaseProps {
   items: { label: string; href: string }[];
   motionVariant?: keyof typeof motionVariants; // Allow motion variant selection
+  color?: Color; // Color option for the breadcrumb
 }
 
-export const Breadcrumb: React.FC<BreadcrumbProps> = ({ className = '', items, motionVariant = 'fadeIn' }) => {
+export const Breadcrumb: React.FC<BreadcrumbProps> = ({ className = '', items, motionVariant = 'fadeIn', color = 'primary' }) => {
+  // Color classes for breadcrumb
+  const colorClasses = {
+    primary: 'text-blue-600 hover:text-blue-800',
+    secondary: 'text-gray-600 hover:text-gray-800',
+    success: 'text-green-600 hover:text-green-800',
+    danger: 'text-red-600 hover:text-red-800',
+    warning: 'text-yellow-600 hover:text-yellow-800',
+    info: 'text-blue-400 hover:text-blue-500',
+  };
+
   return (
     <motion.nav
       className={`flex ${className}`}
@@ -40,11 +53,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ className = '', items, m
             )}
             <a
               href={item.href}
-              className={`ml-1 text-sm font-medium ${
-                index === items.length - 1
-                  ? 'text-gray-500 hover:text-gray-700'
-                  : 'text-blue-600 hover:text-blue-800'
-              }`}
+              className={`ml-1 text-sm font-medium ${index === items.length - 1 ? 'text-gray-500 hover:text-gray-700' : colorClasses[color]}`}
             >
               {item.label}
             </a>
