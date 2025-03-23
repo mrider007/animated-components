@@ -30,7 +30,7 @@ export const Alert: React.FC<AlertProps> = ({
     <motion.div
       className={`p-4 rounded-md ${colorClasses[color]} ${className}`}
       role="alert"
-      variants={motionVariants[motionVariant]} // Apply motion variant here
+      variants={motionVariants[motionVariant]}
       initial="hidden"
       animate="visible"
       exit="hidden"

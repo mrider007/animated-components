@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { motion, AnimatePresence, Variant } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BaseProps, WithChildren } from '../../../types/common';
 import { motionVariants } from '../../utils/motionVariants';
 

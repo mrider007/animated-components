@@ -36,15 +36,15 @@ yarn add my-animated-components
 
 ## Usage
 
-Import the components you need in your React application:
 
 ```jsx
+// Import the components you need in your React application:
 import { Button, Card, Modal } from 'my-animated-components';
-```
 
-Then use them in your components:
 
-```jsx
+//Then use them in your components:
+
+
 function MyComponent() {
   return (
     <Card>

@@ -2,20 +2,27 @@ import { defineConfig } from "rollup";
 import typescript from "@rollup/plugin-typescript";
 import postcss from 'rollup-plugin-postcss';
 import path from "path";
+import dts from "rollup-plugin-dts";
 
-export default defineConfig({
+
+export default defineConfig([{
   input: 'src/index.ts',
-  output: {
-    dir: 'dist',
-    format: 'es',
-    name: 'my-animated-components',
-    sourcemap: true,
-  },
+  output: [
+    {
+      file: "dist/index.js",
+      format: "cjs",
+      sourcemap: true,
+    },
+    {
+      file: "dist/index.esm.js",
+      format: "es",
+      sourcemap: true,
+    },
+  ],
   external: ['react', 'react-dom', 'tailwindcss', 'framer-motion'],
   plugins: [
     typescript({
       tsconfig: "./tsconfig.json",
-      include: ["src/**/*.ts", "src/**/*.tsx", "src/**/*.jsx", "src/**/*.js"],
     }),
     postcss({
       extensions: ['.css'],
@@ -23,4 +30,11 @@ export default defineConfig({
       minimize: true, 
     }),
   ],
-});
+  
+},
+{
+  input: "src/index.ts",
+  output: [{ file: "dist/index.d.ts", format: "es" }],
+  plugins: [dts()],
+},
+]);
