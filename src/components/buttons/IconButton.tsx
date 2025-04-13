@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { motionVariants } from '../../utils/motionVariants';
+import { motionVariants ,getVariantVisible} from '../../utils/motionVariants';
 import { BaseProps, SizeProps } from '../../../types/common';
 
 type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
@@ -89,9 +89,17 @@ export const IconButton: React.FC<IconButtonProps> = ({
     xl: 'p-3',
   };
 
-  const computedWhileHover = whileHoverAnimation || whileHover;
-  const computedWhileTap = whileTapAnimation || whileTap;
-  const computedWhileFocus = whileFocusAnimation || whileFocus;
+   const computedWhileHover = whileHoverAnimation 
+      ? getVariantVisible(whileHoverAnimation)
+      : whileHover;
+    
+    const computedWhileTap = whileTapAnimation 
+      ? getVariantVisible(whileTapAnimation)
+      : whileTap;
+    
+    const computedWhileFocus = whileFocusAnimation 
+      ? getVariantVisible(whileFocusAnimation)
+      : whileFocus;
 
   return (
     <motion.button

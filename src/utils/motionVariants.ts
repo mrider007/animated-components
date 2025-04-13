@@ -1,4 +1,13 @@
-import { Variants } from 'framer-motion';
+import { Variants ,TargetAndTransition} from 'framer-motion';
+
+type MotionVariantKey = keyof typeof motionVariants;
+
+export function getVariantVisible<T extends MotionVariantKey>(
+  variantKey: T
+): TargetAndTransition | undefined {
+  const variant = motionVariants[variantKey]?.visible;
+  return typeof variant === 'function' ? undefined : variant;
+}
 
 export const motionVariants: Record<string, Variants> = {
   null: {},

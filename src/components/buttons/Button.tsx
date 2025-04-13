@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
-import { motionVariants } from '../../utils/motionVariants';
+import { motionVariants,getVariantVisible } from '../../utils/motionVariants';
 import { BaseProps, SizeProps } from '../../../types/common';
 
+
+
 type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+type MotionVariantKey = keyof typeof motionVariants;
 
 interface ButtonProps extends BaseProps, SizeProps, HTMLMotionProps<'button'> {
   variant?: 'solid' | 'outline' | 'ghost';
@@ -12,11 +15,10 @@ interface ButtonProps extends BaseProps, SizeProps, HTMLMotionProps<'button'> {
    * Predefined motion variant name from motionVariants.
    * This will apply the corresponding animation configuration.
    */
-  motionVariant?: keyof typeof motionVariants;
-  // Additional ease animation props that accept a key (string) from motionVariants.
-  whileHoverAnimation?: keyof typeof motionVariants;
-  whileTapAnimation?: keyof typeof motionVariants;
-  whileFocusAnimation?: keyof typeof motionVariants;
+  motionVariant?: MotionVariantKey;
+  whileHoverAnimation?: MotionVariantKey;
+  whileTapAnimation?: MotionVariantKey;
+  whileFocusAnimation?: MotionVariantKey;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -82,9 +84,17 @@ export const Button: React.FC<ButtonProps> = ({
     xl: 'px-6 py-3 text-xl',
   };
 
-  const computedWhileHover = whileHoverAnimation || whileHover;
-  const computedWhileTap = whileTapAnimation || whileTap;
-  const computedWhileFocus = whileFocusAnimation || whileFocus;
+  const computedWhileHover = whileHoverAnimation 
+    ? getVariantVisible(whileHoverAnimation)
+    : whileHover;
+  
+  const computedWhileTap = whileTapAnimation 
+    ? getVariantVisible(whileTapAnimation)
+    : whileTap;
+  
+  const computedWhileFocus = whileFocusAnimation 
+    ? getVariantVisible(whileFocusAnimation)
+    : whileFocus;
 
   return (
     <motion.button

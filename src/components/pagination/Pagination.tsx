@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
-import { motionVariants } from '../../utils/motionVariants';
+import { getVariantVisible, motionVariants } from '../../utils/motionVariants';
 import { BaseProps } from '../../../types/common';
 
 type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
@@ -77,9 +77,17 @@ export const Pagination: React.FC<PaginationProps> = ({
     info: 'text-blue-400 bg-blue-50 hover:bg-blue-100 hover:text-blue-500 dark:bg-blue-800 dark:hover:bg-blue-700',
   };
 
-  const computedWhileHover = whileHoverAnimation || whileHover;
-  const computedWhileTap = whileTapAnimation || whileTap;
-  const computedWhileFocus = whileFocusAnimation || whileFocus;
+   const computedWhileHover = whileHoverAnimation 
+      ? getVariantVisible(whileHoverAnimation)
+      : whileHover;
+    
+    const computedWhileTap = whileTapAnimation 
+      ? getVariantVisible(whileTapAnimation)
+      : whileTap;
+    
+    const computedWhileFocus = whileFocusAnimation 
+      ? getVariantVisible(whileFocusAnimation)
+      : whileFocus;
 
   return (
     <motion.nav
