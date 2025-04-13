@@ -37,6 +37,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
   whileHoverAnimation,
   whileTapAnimation,
   whileFocusAnimation,
+  ...rest
 }) => {
   const baseClasses =
     'rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2';
@@ -103,6 +104,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
       whileHover={computedWhileHover}
       whileTap={computedWhileTap}
       whileFocus={computedWhileFocus}
+      {...rest}
     >
       {icon}
     </motion.button>
