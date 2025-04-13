@@ -15,7 +15,7 @@ export const Alert: React.FC<AlertProps> = ({
   className = '',
   color = 'primary',
   onClose,
-  motionVariant = 'fadeIn', // Default motion variant
+  motionVariant = 'fadeIn',
 }) => {
   const colorClasses = {
     primary: 'bg-blue-100 text-blue-700',

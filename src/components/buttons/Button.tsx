@@ -1,16 +1,22 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { motionVariants } from '../../utils/motionVariants'; 
-import { BaseProps, WithChildren, SizeProps } from '../../../types/common';
+import { motion, HTMLMotionProps } from 'framer-motion';
+import { motionVariants } from '../../utils/motionVariants';
+import { BaseProps, SizeProps } from '../../../types/common';
 
 type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
 
-interface ButtonProps extends BaseProps, WithChildren, SizeProps {
-  onClick?: () => void;
-  disabled?: boolean;
+interface ButtonProps extends BaseProps, SizeProps, HTMLMotionProps<'button'> {
   variant?: 'solid' | 'outline' | 'ghost';
   color?: Color;
-  motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
+  /**
+   * Predefined motion variant name from motionVariants.
+   * This will apply the corresponding animation configuration.
+   */
+  motionVariant?: keyof typeof motionVariants;
+  // Additional ease animation props that accept a key (string) from motionVariants.
+  whileHoverAnimation?: keyof typeof motionVariants;
+  whileTapAnimation?: keyof typeof motionVariants;
+  whileFocusAnimation?: keyof typeof motionVariants;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -21,11 +27,21 @@ export const Button: React.FC<ButtonProps> = ({
   onClick,
   disabled = false,
   variant = 'solid',
-  motionVariant = 'fadeIn', // Default motion variant
+  motionVariant = 'fadeIn',
+  // Standard Framer Motion props
+  whileHover,
+  whileTap,
+  whileFocus,
+  // Additional ease animation props
+  whileHoverAnimation,
+  whileTapAnimation,
+  whileFocusAnimation,
+  ...rest
 }) => {
-  const baseClasses = 'font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseClasses =
+    'font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2';
 
-  const colorClasses = {
+  const colorClasses: Record<Color, Record<'solid' | 'outline' | 'ghost', string>> = {
     primary: {
       solid: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
       outline: 'border border-blue-600 text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
@@ -58,13 +74,17 @@ export const Button: React.FC<ButtonProps> = ({
     },
   };
 
-  const sizeClasses = {
+  const sizeClasses: Record<string, string> = {
     xs: 'px-2.5 py-1.5 text-xs',
     sm: 'px-3 py-2 text-sm',
     md: 'px-4 py-2 text-base',
     lg: 'px-4 py-2 text-lg',
     xl: 'px-6 py-3 text-xl',
   };
+
+  const computedWhileHover = whileHoverAnimation || whileHover;
+  const computedWhileTap = whileTapAnimation || whileTap;
+  const computedWhileFocus = whileFocusAnimation || whileFocus;
 
   return (
     <motion.button
@@ -74,6 +94,10 @@ export const Button: React.FC<ButtonProps> = ({
       variants={motionVariants[motionVariant]}
       initial="hidden"
       animate="visible"
+      whileHover={computedWhileHover}
+      whileTap={computedWhileTap}
+      whileFocus={computedWhileFocus}
+      {...rest}
     >
       {children}
     </motion.button>
