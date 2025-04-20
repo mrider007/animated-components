@@ -11,6 +11,7 @@ interface SelectProps extends BaseProps, SizeProps {
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   color?: Color;
   motionVariant?: keyof typeof motionVariants;
+  
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -21,6 +22,7 @@ export const Select: React.FC<SelectProps> = ({
   onChange,
   color = 'primary',
   motionVariant = 'fadeIn', // Default motion variant
+  ...rest
 }) => {
   const baseClasses = 'w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2';
 
@@ -52,6 +54,7 @@ export const Select: React.FC<SelectProps> = ({
         className={`${baseClasses} ${colorClasses[color]} ${sizeClasses[size]} ${className}`}
         value={value}
         onChange={onChange}
+        {...rest}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

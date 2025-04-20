@@ -18,6 +18,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   height = '20px',
   color = 'primary',
   motionVariant = 'fadeIn', // Default motion variant
+  ...rest
 }) => {
   const colorClasses = {
     primary: 'bg-blue-200',
@@ -35,6 +36,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       variants={motionVariants[motionVariant]}
       initial="hidden"
       animate="visible"
+      {...rest}
     ></motion.div>
   );
 };

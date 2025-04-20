@@ -13,7 +13,7 @@ interface BreadcrumbProps extends BaseProps {
   color?: Color; // Color option for the breadcrumb
 }
 
-export const Breadcrumb: React.FC<BreadcrumbProps> = ({ className = '', items, motionVariant = 'fadeIn', color = 'primary' }) => {
+export const Breadcrumb: React.FC<BreadcrumbProps> = ({ className = '', items, motionVariant = 'fadeIn', color = 'primary',...rest }) => {
   // Color classes for breadcrumb
   const colorClasses = {
     primary: 'text-blue-600 hover:text-blue-800',
@@ -33,6 +33,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ className = '', items, m
       animate="visible"
       exit="hidden"
       transition={{ duration: 0.3 }}
+      {...rest}
     >
       <ol className="inline-flex items-center space-x-1 md:space-x-3">
         {items.map((item, index) => (

@@ -6,7 +6,7 @@ interface HeadingProps extends BaseProps, WithChildren, SizeProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
-export const Heading: React.FC<HeadingProps> = ({ children, className = '', as = 'h2', size = 'md' }) => {
+export const Heading: React.FC<HeadingProps> = ({ children, className = '', as = 'h2', size = 'md',...rest }) => {
   const Tag = as;
   const sizeClasses = {
     xs: 'text-lg',
@@ -22,7 +22,7 @@ export const Heading: React.FC<HeadingProps> = ({ children, className = '', as =
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Tag className={`font-bold ${sizeClasses[size]} ${className}`}>
+      <Tag {...rest} className={`font-bold ${sizeClasses[size]} ${className}`}>
         {children}
       </Tag>
     </motion.div>

@@ -16,6 +16,7 @@ export const Alert: React.FC<AlertProps> = ({
   color = 'primary',
   onClose,
   motionVariant = 'fadeIn',
+  ...rest
 }) => {
   const colorClasses = {
     primary: 'bg-blue-100 text-blue-700',
@@ -34,6 +35,7 @@ export const Alert: React.FC<AlertProps> = ({
       initial="hidden"
       animate="visible"
       exit="hidden"
+      {...rest}
       transition={{ duration: 0.3 }}
     >
       <div className="flex">

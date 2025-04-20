@@ -22,6 +22,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   multiple,
   buttonColor = 'primary', // Default button color
   motionVariant = 'fadeIn', // Default motion variant
+  ...rest
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,6 +51,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
       variants={motionVariants[motionVariant]}
+      
     >
       <button
         type="button"
@@ -59,6 +61,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         Choose File
       </button>
       <input
+      {...rest}
         type="file"
         ref={fileInputRef}
         onChange={handleChange}

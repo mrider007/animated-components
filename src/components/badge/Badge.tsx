@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion,HTMLMotionProps } from 'framer-motion';
 import { BaseProps, WithChildren, ColorProps, SizeProps } from '../../../types/common';
 import { motionVariants } from '../../utils/motionVariants'; // Import motion variants
 
@@ -15,6 +15,7 @@ export const Badge: React.FC<BadgeProps> = ({
   color = 'primary',
   size = 'md',
   motionVariant = 'fadeIn', // Default motion variant
+  ...rest
 }) => {
   // Define the colors
   const colorStyles: { [key: string]: string } = {
@@ -61,6 +62,7 @@ export const Badge: React.FC<BadgeProps> = ({
       animate="visible"
       exit="hidden"
       transition={{ duration: 0.3 }}
+      {...rest}
     >
       {children}
     </motion.span>

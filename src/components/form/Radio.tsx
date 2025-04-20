@@ -25,6 +25,7 @@ export const Radio: React.FC<RadioProps> = ({
   color = 'primary', 
   size = 'md',
   motionVariant = 'fadeIn',
+  ...rest
 }) => {
   const baseClasses = 'inline-flex items-center cursor-pointer';
 
@@ -57,6 +58,7 @@ export const Radio: React.FC<RadioProps> = ({
     >
       {/* Radio Input */}
       <input
+      {...rest}
         type="radio"
         name={name}
         value={value}

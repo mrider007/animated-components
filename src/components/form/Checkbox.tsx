@@ -22,6 +22,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   onChange,
   color = 'primary',
   motionVariant = 'fadeIn',
+  ...rest
 }) => {
   const colorClasses = {
     primary: 'text-blue-600 focus:ring-blue-500 hover:text-blue-700',
@@ -39,6 +40,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
       variants={motionVariants[motionVariant]}
+      {...rest}
     >
       <input
         type="checkbox"

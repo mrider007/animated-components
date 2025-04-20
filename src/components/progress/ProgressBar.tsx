@@ -1,27 +1,54 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, MotionProps } from 'framer-motion';
 import { BaseProps, ColorProps } from '../../../types/common';
 import { motionVariants } from '../../utils/motionVariants';
 
-type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+export type MotionVariantKey = keyof typeof motionVariants;
+export type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
 
-interface ProgressBarProps extends BaseProps, ColorProps {
+export interface ProgressBarProps extends BaseProps, ColorProps, MotionProps {
+  /** Current value */
   value: number;
+  /** Maximum value */
   max?: number;
+  /** Semantic color key */
   color?: Color;
-  motionVariant?: keyof typeof motionVariants; 
+  /** Override height utility class */
+  heightClass?: string;
+  /** Container background class */
+  containerBgClass?: string;
+  /** Bar background class override (falls back to color key) */
+  barBgClass?: string;
+  /** Motion variant key */
+  motionVariant?: MotionVariantKey;
+  /** Animation duration in seconds */
+  duration?: number;
+  /** Loop animation */
+  loop?: boolean;
+  /** Show percentage label */
+  showLabel?: boolean;
+  /** Label container class */
+  labelClassName?: string;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   className = '',
-  color = 'primary',
   value,
   max = 100,
-  motionVariant = 'fadeIn', // Default motion variant
+  color = 'primary',
+  heightClass = 'h-2.5',
+  containerBgClass = 'bg-gray-200',
+  barBgClass,
+  motionVariant = 'fadeIn',
+  duration = 0.5,
+  loop = false,
+  showLabel = false,
+  labelClassName = 'text-xs font-medium text-gray-700 ml-2',
+  ...rest
 }) => {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
 
-  const colorClasses = {
+  const defaultColorMap: Record<Color, string> = {
     primary: 'bg-blue-600',
     secondary: 'bg-gray-600',
     success: 'bg-green-600',
@@ -30,20 +57,35 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     info: 'bg-indigo-600',
   };
 
+  const barClass = barBgClass || defaultColorMap[color];
+
+  const transition = {
+    duration,
+    ...(loop ? { repeat: Infinity, repeatType: 'loop' as const } : {}),
+  };
+
   return (
-    <div className={`w-full bg-gray-200 rounded-full h-2.5 ${className}`}>
-      <motion.div
-        className={`h-2.5 rounded-full ${colorClasses[color]}`}
-        style={{ width: `${percentage}%` }}
-        initial={{ width: 0 }}
-        animate={{ width: `${percentage}%` }}
-        transition={{ duration: 0.5 }}
-        variants={motionVariants[motionVariant]}
-        role="progressbar"
-        aria-valuenow={value}
-        aria-valuemin={0}
-        aria-valuemax={max}
-      />
+    <div className={`flex items-center ${className}`}>      
+      <div className={`relative w-full ${containerBgClass} rounded-full ${heightClass}`}>        
+        <motion.div
+          className={`absolute left-0 top-0 rounded-full ${heightClass} ${barClass}`}
+          style={{ width: `${percentage}%` }}
+          initial={{ width: 0 }}
+          animate={{ width: `${percentage}%` }}
+          transition={transition}
+          variants={motionVariants[motionVariant]}
+          role="progressbar"
+          aria-valuenow={value}
+          aria-valuemin={0}
+          aria-valuemax={max}
+          {...rest}
+        />
+      </div>
+      {showLabel && (
+        <span className={labelClassName}>
+          {Math.round(percentage)}%
+        </span>
+      )}
     </div>
   );
 };

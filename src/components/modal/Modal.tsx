@@ -9,14 +9,24 @@ interface ModalProps extends BaseProps, WithChildren {
   isOpen: boolean;
   onClose: () => void;
   motionVariant?: keyof typeof motionVariants;
+  duration?: number;
+  loop?: boolean;
 }
 
-export const Modal: React.FC<ModalProps> = ({ children, className = '', isOpen, onClose,motionVariant='bounce' }) => {
+export const Modal: React.FC<ModalProps> = ({ children, className = '', isOpen, onClose,motionVariant='bounce',duration = 0.3,
+  loop = false, ...rest }) => {
+    const transition = {
+      duration,
+      ...(loop ? { repeat: Infinity, repeatType: 'loop' } : {}),
+    };
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
           className="fixed inset-0 z-50 overflow-y-auto"
+          {...rest} initial="hidden"
+      animate="visible"
+      transition={{ transition }}
           variants={motionVariants[motionVariant]}
         >
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">

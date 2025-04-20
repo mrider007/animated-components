@@ -23,6 +23,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   rows = 4,
   color = 'primary',
   motionVariant = 'fadeIn', // Default motion variant
+  ...rest
 }) => {
   const baseClasses = 'w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
 
@@ -56,6 +57,7 @@ export const Textarea: React.FC<TextareaProps> = ({
         value={value}
         onChange={onChange}
         rows={rows}
+        {...rest}
       />
     </motion.div>
   );

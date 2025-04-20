@@ -1,18 +1,29 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BaseProps, WithChildren } from '../../../types/common';
+import { motionVariants } from '../../utils/motionVariants';
 
 interface ListProps extends BaseProps, WithChildren {
   as?: 'ul' | 'ol';
+  motionVariant?: keyof typeof motionVariants;
+  duration?: number;
+  loop?: boolean;
 }
 
-export const List: React.FC<ListProps> = ({ children, className = '', as = 'ul' }) => {
+export const List: React.FC<ListProps> = ({ children, className = '', duration = 0.3,
+  loop = false, as = 'ul', motionVariant = 'fadeIn', ...rest }) => {
+  const transition = {
+    duration,
+    ...(loop ? { repeat: Infinity, repeatType: 'loop' } : {}),
+  };
   const Tag = as;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      initial="hidden"
+      animate="visible"
+      variants={motionVariants[motionVariant]}
+      transition={{ transition }}
+      {...rest}
     >
       <Tag className={`space-y-1 ${className}`}>
         {children}

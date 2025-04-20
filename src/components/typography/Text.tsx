@@ -5,7 +5,7 @@ interface TextProps extends BaseProps, WithChildren, SizeProps {
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
 }
 
-export const Text: React.FC<TextProps> = ({ children, className = '', size = 'md', weight = 'normal' }) => {
+export const Text: React.FC<TextProps> = ({ children, className = '', size = 'md', weight = 'normal',...rest }) => {
   const sizeClasses = {
     xs: 'text-xs',
     sm: 'text-sm',
@@ -22,7 +22,7 @@ export const Text: React.FC<TextProps> = ({ children, className = '', size = 'md
   };
 
   return (
-    <p className={`${sizeClasses[size]} ${weightClasses[weight]} ${className}`}>
+    <p {...rest} className={`${sizeClasses[size]} ${weightClasses[weight]} ${className}`}>
       {children}
     </p>
   );

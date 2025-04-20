@@ -7,7 +7,7 @@ interface CardFooterProps extends BaseProps, WithChildren {
   motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
 }
 
-export const CardFooter: React.FC<CardFooterProps> = ({ children, className = '', motionVariant = 'fadeIn' }) => {
+export const CardFooter: React.FC<CardFooterProps> = ({ children, className = '', motionVariant = 'fadeIn',...rest }) => {
   return (
     <motion.div
       className={`px-4 py-4 sm:px-6 ${className}`}
@@ -16,6 +16,7 @@ export const CardFooter: React.FC<CardFooterProps> = ({ children, className = ''
       animate="visible"
       exit="hidden"
       transition={{ duration: 0.3 }}
+      {...rest}
     >
       {children}
     </motion.div>

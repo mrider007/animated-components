@@ -24,6 +24,7 @@ export const Input: React.FC<InputProps> = ({
   onChange,
   color = 'primary',
   textColor = 'black',
+  ...rest
 }) => {
  
   const sizeClasses = {
@@ -57,8 +58,10 @@ export const Input: React.FC<InputProps> = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
+
     >
       <input
+      {...rest}
         type={type}
         className={`w-full rounded-md ${sizeClasses[size]} ${colorClasses[color]} ${textColorClasses[textColor]} ${className} focus:outline-none focus:ring-2`}
         placeholder={placeholder}

@@ -20,6 +20,7 @@ export const Switch: React.FC<SwitchProps> = ({
   label,
   color = 'primary',
   motionVariant = 'fadeIn', // Default motion variant
+  ...rest
 }) => {
   const baseClasses = 'inline-flex items-center cursor-pointer';
 
@@ -42,6 +43,7 @@ export const Switch: React.FC<SwitchProps> = ({
     >
       <div className="relative">
         <input
+        {...rest}
           type="checkbox"
           className="sr-only"
           checked={checked}

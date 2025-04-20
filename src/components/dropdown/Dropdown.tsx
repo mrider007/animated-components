@@ -10,7 +10,7 @@ interface DropdownProps extends BaseProps, WithChildren {
   motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
 }
 
-export const Dropdown: React.FC<DropdownProps> = ({ children, className = '', trigger, motionVariant = 'fadeIn' }) => {
+export const Dropdown: React.FC<DropdownProps> = ({ children, className = '', trigger, motionVariant = 'fadeIn' },...rest) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +44,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ children, className = '', tr
               animate="visible"
               exit="hidden"
               transition={{ duration: 0.3 }}
+              {...rest}
             >
               {children}
             </motion.div>
