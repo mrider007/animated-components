@@ -37,7 +37,7 @@ interface NavbarProps extends BaseProps, WithChildren {
   loop?: boolean;
 }
 
-export const CustomizableNavbar: React.FC<NavbarProps> = ({
+export const Navbar: React.FC<NavbarProps> = ({
   brand,
   children,
   className = '',
