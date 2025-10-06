@@ -49,6 +49,7 @@ import { Tabs } from './components/tabs/Tabs';
 import { Tooltip } from './components/tooltip/Tooltip';
 import { Heading } from './components/typography/Heading';
 import { Text } from './components/typography/Text';
+import Imageeditor from './components/image/Imageditor';
 
 import { motionVariants } from './utils/motionVariants';
 
@@ -103,5 +104,6 @@ export {
   Tooltip,
   Heading,
   Text,
-  motionVariants
+  Imageeditor,
+  motionVariants,
 };

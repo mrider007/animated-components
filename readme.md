@@ -94,6 +94,7 @@ function MyComponent() {
 - Text
 - Textarea
 - Tooltip
+- Imageeditor
 
 ## Customization
 
