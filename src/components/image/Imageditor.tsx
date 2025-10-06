@@ -23,8 +23,8 @@ interface EditorState {
 }
 
 // Custom SVG Icons
-const CropIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const CropIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M6 2V6H2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M18 2V6H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M18 22V18H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -33,8 +33,8 @@ const CropIcon = ({ size = 16, className = "" }) => (
   </svg>
 );
 
-const PaletteIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const PaletteIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2Z" stroke="currentColor" strokeWidth="2"/>
     <path d="M20 12C21.1 12 22 12.9 22 14C22 15.1 21.1 16 20 16C18.9 16 18 15.1 18 14C18 12.9 18.9 12 20 12Z" stroke="currentColor" strokeWidth="2"/>
     <path d="M4 12C5.1 12 6 12.9 6 14C6 15.1 5.1 16 4 16C2.9 16 2 15.1 2 14C2 12.9 2.9 12 4 12Z" stroke="currentColor" strokeWidth="2"/>
@@ -46,24 +46,24 @@ const PaletteIcon = ({ size = 16, className = "" }) => (
   </svg>
 );
 
-const SparklesIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const SparklesIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M9.5 1L11 4.5L14.5 6L11 7.5L9.5 11L8 7.5L4.5 6L8 4.5L9.5 1Z" stroke="currentColor" strokeWidth="2"/>
     <path d="M17.5 8L18.5 10.5L21 11.5L18.5 12.5L17.5 15L16.5 12.5L14 11.5L16.5 10.5L17.5 8Z" stroke="currentColor" strokeWidth="2"/>
     <path d="M5.5 13L6.5 15.5L9 16.5L6.5 17.5L5.5 20L4.5 17.5L2 16.5L4.5 15.5L5.5 13Z" stroke="currentColor" strokeWidth="2"/>
   </svg>
 );
 
-const RotateIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const RotateIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M23 4V10H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M1 20V14H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M3.51 9C4.01717 7.56678 4.87913 6.2854 6.01547 5.27542C7.1518 4.26543 8.52547 3.55976 10.0083 3.22426C11.4911 2.88875 13.0348 2.93434 14.4952 3.35677C15.9556 3.77921 17.2853 4.56471 18.36 5.64L23 10M1 14L5.64 18.36C6.71475 19.4353 8.04437 20.2208 9.50481 20.6432C10.9652 21.0657 12.5089 21.1113 13.9917 20.7757C15.4745 20.4402 16.8482 19.7346 17.9845 18.7246C19.1209 17.7146 19.9828 16.4332 20.49 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const FlipHorizontalIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const FlipHorizontalIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M3 12H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M12 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M7 7L3 12L7 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -71,8 +71,8 @@ const FlipHorizontalIcon = ({ size = 16, className = "" }) => (
   </svg>
 );
 
-const FlipVerticalIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const FlipVerticalIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M12 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M3 12H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M7 7L12 3L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -80,8 +80,8 @@ const FlipVerticalIcon = ({ size = 16, className = "" }) => (
   </svg>
 );
 
-const ZoomInIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const ZoomInIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
     <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M11 8V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -89,16 +89,16 @@ const ZoomInIcon = ({ size = 16, className = "" }) => (
   </svg>
 );
 
-const ZoomOutIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const ZoomOutIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
     <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M8 11H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 );
 
-const SunIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const SunIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
     <path d="M12 1V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M12 21V23" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -111,21 +111,21 @@ const SunIcon = ({ size = 16, className = "" }) => (
   </svg>
 );
 
-const ContrastIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const ContrastIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
     <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" stroke="currentColor" strokeWidth="2"/>
   </svg>
 );
 
-const DropletIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const DropletIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M12 22C16.4183 22 20 18.4183 20 14C20 8 12 2 12 2C12 2 4 8 4 14C4 18.4183 7.58172 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
   </svg>
 );
 
-const ApertureIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const ApertureIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
     <path d="M14.31 8L20.05 17.94" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M9.69 8L3.95 17.94" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -134,51 +134,51 @@ const ApertureIcon = ({ size = 16, className = "" }) => (
   </svg>
 );
 
-const DownloadIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const DownloadIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M7 10L12 15L17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const XIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const XIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const CheckIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const CheckIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const UndoIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const UndoIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M3 10C3 10 3 9 4 8C5 7 7 5 12 5C17 5 19 7 20 8C21 9 21 10 21 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M3 10V14C3 14 3 15 4 16C5 17 7 19 12 19C17 19 19 17 20 16C21 15 21 14 21 14V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M8 10L3 10L5 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const RedoIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const RedoIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M21 10C21 10 21 9 20 8C19 7 17 5 12 5C7 5 5 7 4 8C3 9 3 10 3 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M21 10V14C21 14 21 15 20 16C19 17 17 19 12 19C7 19 5 17 4 16C3 15 3 14 3 14V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M16 10L21 10L19 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const ChevronLeftIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const ChevronLeftIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const ChevronRightIcon = ({ size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+const ChevronRightIcon = ({ size = 16, className = "", style = {} }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
@@ -246,10 +246,9 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
     cropArea
   }), [rotation, flipH, flipV, zoom, brightness, contrast, saturation, blur, hue, cropArea]);
 
-  const saveToHistory = useCallback((state?: EditorState) => {
-    const currentState = state || getCurrentState();
+  const saveToHistory = useCallback(() => {
     const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(currentState);
+    newHistory.push(getCurrentState());
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
   }, [history, historyIndex, getCurrentState]);
@@ -270,7 +269,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
     }
   }, [historyIndex, history]);
 
-  const applyState = useCallback((state: EditorState) => {
+  const applyState = (state: EditorState) => {
     setRotation(state.rotation);
     setFlipH(state.flipH);
     setFlipV(state.flipV);
@@ -281,75 +280,60 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
     setBlur(state.blur);
     setHue(state.hue);
     setCropArea(state.cropArea);
-  }, []);
+  };
 
-  // Initialize with first state
   useEffect(() => {
-    if (imageFile && !originalImage) {
+    if (imageFile) {
       const img = new Image();
       img.src = URL.createObjectURL(imageFile);
       img.onload = () => {
         setOriginalImage(img);
-        const initialState: EditorState = {
-          rotation: 0,
-          flipH: false,
-          flipV: false,
-          zoom: 1,
-          brightness: 100,
-          contrast: 100,
-          saturation: 100,
-          blur: 0,
-          hue: 0,
-          cropArea: { x: 0, y: 0, width: 100, height: 100 }
-        };
-        setHistory([initialState]);
-        setHistoryIndex(0);
-        drawCanvas(img, initialState);
+        drawCanvas(img);
+        saveToHistory();
       };
     }
-  }, [imageFile, originalImage]);
+  }, [imageFile]);
 
-  // Draw canvas when state changes
   useEffect(() => {
     if (originalImage) {
-      drawCanvas(originalImage, getCurrentState());
+      drawCanvas(originalImage);
     }
-  }, [rotation, flipH, flipV, zoom, brightness, contrast, saturation, blur, hue, originalImage, getCurrentState]);
+  }, [rotation, flipH, flipV, zoom, brightness, contrast, saturation, blur, hue]);
 
-  const drawCanvas = (img: HTMLImageElement, state: EditorState) => {
-    const canvas = canvasRef.current
-    if (!canvas || !img) return
+  const drawCanvas = (img: HTMLImageElement) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !img) return;
 
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const maxWidth = 1200
-    const maxHeight = 800
-
-    let width = img.width
-    let height = img.height
-
+    const maxWidth = 1200;
+    const maxHeight = 800;
+    
+    let width = img.width;
+    let height = img.height;
+    
     if (width > maxWidth || height > maxHeight) {
-      const ratio = Math.min(maxWidth / width, maxHeight / height)
-      width *= ratio
-      height *= ratio
+      const ratio = Math.min(maxWidth / width, maxHeight / height);
+      width *= ratio;
+      height *= ratio;
     }
 
-    canvas.width = width
-    canvas.height = height
+    canvas.width = width;
+    canvas.height = height;
 
-    ctx.save()
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) blur(${blur}px) hue-rotate(${hue}deg)`
-
-    ctx.translate(canvas.width / 2, canvas.height / 2)
-    ctx.rotate((rotation * Math.PI) / 180)
-    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1)
-    ctx.scale(zoom, zoom)
-
-    ctx.drawImage(img, -width / 2, -height / 2, width, height)
-    ctx.restore()
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) blur(${blur}px) hue-rotate(${hue}deg)`;
+    
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+    ctx.scale(zoom, zoom);
+    
+    ctx.drawImage(img, -width / 2, -height / 2, width, height);
+    ctx.restore();
   };
 
   const handleCropMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -398,53 +382,48 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
   };
 
   const applyCrop = () => {
-     const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    const cropX = (cropArea.x / 100) * canvas.width
-    const cropY = (cropArea.y / 100) * canvas.height
-    const cropWidth = (cropArea.width / 100) * canvas.width
-    const cropHeight = (cropArea.height / 100) * canvas.height
-
-    const imageData = ctx.getImageData(cropX, cropY, cropWidth, cropHeight)
-    canvas.width = cropWidth
-    canvas.height = cropHeight
-    ctx.putImageData(imageData, 0, 0)
-
-    setCropArea({ x: 0, y: 0, width: 100, height: 100 })
-    saveToHistory()
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const cropX = (cropArea.x / 100) * canvas.width;
+    const cropY = (cropArea.y / 100) * canvas.height;
+    const cropWidth = (cropArea.width / 100) * canvas.width;
+    const cropHeight = (cropArea.height / 100) * canvas.height;
+    
+    const imageData = ctx.getImageData(cropX, cropY, cropWidth, cropHeight);
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
+    ctx.putImageData(imageData, 0, 0);
+    
+    setCropArea({ x: 0, y: 0, width: 100, height: 100 });
+    saveToHistory();
   };
 
   const applyFilter = (filter: typeof filters[0]) => {
-    const newState = {
-      ...getCurrentState(),
-      brightness: filter.values.brightness,
-      contrast: filter.values.contrast,
-      saturation: filter.values.saturation,
-      blur: filter.values.blur,
-      hue: filter.values.hue
-    };
-    applyState(newState);
-    saveToHistory(newState);
+    setBrightness(filter.values.brightness);
+    setContrast(filter.values.contrast);
+    setSaturation(filter.values.saturation);
+    setBlur(filter.values.blur);
+    setHue(filter.values.hue);
+    saveToHistory();
   };
 
   const handleReset = () => {
-    const resetState: EditorState = {
-      rotation: 0,
-      flipH: false,
-      flipV: false,
-      zoom: 1,
-      brightness: 100,
-      contrast: 100,
-      saturation: 100,
-      blur: 0,
-      hue: 0,
-      cropArea: { x: 0, y: 0, width: 100, height: 100 }
-    };
-    applyState(resetState);
-    saveToHistory(resetState);
+    setRotation(0);
+    setFlipH(false);
+    setFlipV(false);
+    setZoom(1);
+    setBrightness(100);
+    setContrast(100);
+    setSaturation(100);
+    setBlur(0);
+    setHue(0);
+    setCropArea({ x: 0, y: 0, width: 100, height: 100 });
+    if (originalImage) {
+      drawCanvas(originalImage);
+    }
   };
 
   const handleSave = () => {
@@ -456,14 +435,6 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
         onSave(file);
       }
     });
-  };
-
-  const handleSliderChange = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
-    setter(value);
-  };
-
-  const handleSliderChangeEnd = () => {
-    saveToHistory();
   };
 
   const tabs = [
@@ -478,7 +449,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderBottom: '1px solid #2a2a2a', backgroundColor: '#1a1a1a' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <ApertureIcon className="text-blue-500" />
+            <ApertureIcon style={{ width: 20, height: 20, color: '#3b82f6' }} />
             <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>Image Editor</h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -498,7 +469,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               title="Undo"
             >
-              <UndoIcon />
+              <UndoIcon style={{ width: 16, height: 16 }} />
             </button>
             <button
               onClick={redo}
@@ -516,7 +487,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               title="Redo"
             >
-              <RedoIcon />
+              <RedoIcon style={{ width: 16, height: 16 }} />
             </button> */}
             <div style={{ width: '1px', height: '20px', backgroundColor: '#2a2a2a', margin: '0 4px' }} />
             <button
@@ -537,7 +508,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
               onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
               onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
-              <CheckIcon />
+              <CheckIcon style={{ width: 14, height: 14 }} />
               Save
             </button>
             <button
@@ -554,7 +525,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#e5e5e5'; }}
               title="Cancel"
             >
-              <XIcon />
+              <XIcon style={{ width: 16, height: 16 }} />
             </button>
           </div>
         </div>
@@ -623,7 +594,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                 onMouseEnter={(e) => { if (activeTab !== tab.id) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
                 onMouseLeave={(e) => { if (activeTab !== tab.id) e.currentTarget.style.backgroundColor = 'transparent'; }}
               >
-                <tab.icon />
+                <tab.icon style={{ width: 14, height: 14 }} />
                 {tab.label}
               </button>
             ))}
@@ -696,7 +667,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                         onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
                         onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                       >
-                        <CropIcon />
+                        <CropIcon style={{ width: 14, height: 14 }} />
                         Apply Crop
                       </button>
                     )}
@@ -709,14 +680,14 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+                    className="space-y-3"
                   >
                     <SliderControl
                       icon={<SunIcon className="text-yellow-500" />}
                       label="Brightness"
                       value={brightness}
-                      onChange={(value) => handleSliderChange(setBrightness, value)}
-                      onChangeEnd={handleSliderChangeEnd}
+                      onChange={setBrightness}
+                      onChangeEnd={saveToHistory}
                       min={0}
                       max={200}
                       unit="%"
@@ -725,8 +696,8 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       icon={<ContrastIcon className="text-purple-500" />}
                       label="Contrast"
                       value={contrast}
-                      onChange={(value) => handleSliderChange(setContrast, value)}
-                      onChangeEnd={handleSliderChangeEnd}
+                      onChange={setContrast}
+                      onChangeEnd={saveToHistory}
                       min={0}
                       max={200}
                       unit="%"
@@ -735,8 +706,8 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       icon={<DropletIcon className="text-blue-500" />}
                       label="Saturation"
                       value={saturation}
-                      onChange={(value) => handleSliderChange(setSaturation, value)}
-                      onChangeEnd={handleSliderChangeEnd}
+                      onChange={setSaturation}
+                      onChangeEnd={saveToHistory}
                       min={0}
                       max={200}
                       unit="%"
@@ -745,8 +716,8 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       icon={<ApertureIcon className="text-gray-500" />}
                       label="Blur"
                       value={blur}
-                      onChange={(value) => handleSliderChange(setBlur, value)}
-                      onChangeEnd={handleSliderChangeEnd}
+                      onChange={setBlur}
+                      onChangeEnd={saveToHistory}
                       min={0}
                       max={10}
                       step={0.1}
@@ -756,8 +727,8 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       icon={<PaletteIcon className="text-pink-500" />}
                       label="Hue"
                       value={hue}
-                      onChange={(value) => handleSliderChange(setHue, value)}
-                      onChangeEnd={handleSliderChangeEnd}
+                      onChange={setHue}
+                      onChangeEnd={saveToHistory}
                       min={-180}
                       max={180}
                       unit="°"
@@ -810,18 +781,15 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       icon={<RotateIcon />}
                       label="Rotation"
                       value={rotation}
-                      onChange={(value) => handleSliderChange(setRotation, value)}
-                      onChangeEnd={handleSliderChangeEnd}
+                      onChange={setRotation}
+                      onChangeEnd={saveToHistory}
                       min={0}
                       max={360}
                       unit="°"
                     />
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button
-                        onClick={() => { 
-                          setFlipH(!flipH); 
-                          handleSliderChangeEnd();
-                        }}
+                        onClick={() => { setFlipH(!flipH); saveToHistory(); }}
                         style={{
                           flex: 1,
                           padding: '8px 12px',
@@ -840,14 +808,11 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                         onMouseEnter={(e) => { if (!flipH) e.currentTarget.style.backgroundColor = '#3a3a3a'; }}
                         onMouseLeave={(e) => { if (!flipH) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
                       >
-                        <FlipHorizontalIcon />
+                        <FlipHorizontalIcon style={{ width: 14, height: 14 }} />
                         Flip H
                       </button>
                       <button
-                        onClick={() => { 
-                          setFlipV(!flipV); 
-                          handleSliderChangeEnd();
-                        }}
+                        onClick={() => { setFlipV(!flipV); saveToHistory(); }}
                         style={{
                           flex: 1,
                           padding: '8px 12px',
@@ -866,7 +831,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                         onMouseEnter={(e) => { if (!flipV) e.currentTarget.style.backgroundColor = '#3a3a3a'; }}
                         onMouseLeave={(e) => { if (!flipV) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
                       >
-                        <FlipVerticalIcon />
+                        <FlipVerticalIcon style={{ width: 14, height: 14 }} />
                         Flip V
                       </button>
                     </div>
@@ -874,8 +839,8 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       icon={<ZoomInIcon />}
                       label="Zoom"
                       value={zoom}
-                      onChange={(value) => handleSliderChange(setZoom, value)}
-                      onChangeEnd={handleSliderChangeEnd}
+                      onChange={setZoom}
+                      onChangeEnd={saveToHistory}
                       min={0.5}
                       max={3}
                       step={0.1}
@@ -907,7 +872,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2a2a2a'}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1a1a1a'}
       >
-        {isPanelOpen ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+        {isPanelOpen ? <ChevronRightIcon style={{ width: 16, height: 16 }} /> : <ChevronLeftIcon style={{ width: 16, height: 16 }} />}
       </button>
     </div>,
     document.body
