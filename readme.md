@@ -95,6 +95,8 @@ function MyComponent() {
 - Textarea
 - Tooltip
 - Imageeditor
+- ImageEditor
+- Carousel
 
 ## Customization
 
