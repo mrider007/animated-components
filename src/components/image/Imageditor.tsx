@@ -1,239 +1,430 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+"use client"
 
-interface ImageEditorProps {
-  imageFile: File;
-  onSave: (file: File) => void;
-  onCancel: () => void;
-  className?: string;
+import React, { useState, useRef, useEffect, useCallback } from "react"
+import { createPortal } from "react-dom"
+import { motion, AnimatePresence } from "framer-motion"
+import { SliderControl } from "./SliderControl" 
+
+type IconProps = React.SVGProps<SVGSVGElement> & { size?: number }
+const I = ({ children, size = 16, ...props }: IconProps & { children?: React.ReactNode }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.75}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    {...props}
+  >
+    {children}
+  </svg>
+)
+
+// Icons (minimal geometry)
+const Crop = (p: IconProps) => (
+  <I {...p}>
+    <path d="M7 3v10a4 4 0 0 0 4 4h10" />
+    <path d="M3 7h10a4 4 0 0 1 4 4v10" />
+  </I>
+)
+const Palette = (p: IconProps) => (
+  <I {...p}>
+    <path d="M12 3a9 9 0 1 0 0 18c1.5 0 3-.9 3-2.5a2.5 2.5 0 0 0-2.5-2.5H11a3 3 0 0 1 0-6h1" />
+    <circle cx="8.5" cy="8.5" r="1" />
+    <circle cx="15.5" cy="7.5" r="1" />
+    <circle cx="7.5" cy="13.5" r="1" />
+  </I>
+)
+const Sparkles = (p: IconProps) => (
+  <I {...p}>
+    <path d="M12 3l1.5 3.5L17 8l-3.5 1.5L12 13l-1.5-3.5L7 8l3.5-1.5L12 3z" />
+    <path d="M18 14l.8 1.8L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-1.2L18 14z" />
+  </I>
+)
+const RotateCw = (p: IconProps) => (
+  <I {...p}>
+    <path d="M20 5v6h-6" />
+    <path d="M20 11a8 8 0 1 1-2.34-5.66" />
+  </I>
+)
+const FlipHorizontal = (p: IconProps) => (
+  <I {...p}>
+    <path d="M3 12h18" />
+    <path d="M12 3l-6 9 6 9V3z" />
+  </I>
+)
+const FlipVertical = (p: IconProps) => (
+  <I {...p}>
+    <path d="M12 3v18" />
+    <path d="M3 12l9-6 9 6H3z" />
+  </I>
+)
+const ZoomIn = (p: IconProps) => (
+  <I {...p}>
+    <circle cx="11" cy="11" r="6" />
+    <path d="M21 21l-4.3-4.3" />
+    <path d="M11 8v6M8 11h6" />
+  </I>
+)
+const Sun = (p: IconProps) => (
+  <I {...p}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l-1.4-1.4M20.4 20.4 19 19M19 5l1.4-1.4M4.6 20.4 6 19" />
+  </I>
+)
+const Contrast = (p: IconProps) => (
+  <I {...p}>
+    <circle cx="12" cy="12" r="8" />
+    <path d="M12 4a8 8 0 0 1 0 16V4z" />
+  </I>
+)
+const Droplet = (p: IconProps) => (
+  <I {...p}>
+    <path d="M12 3s-5 6-5 9a5 5 0 0 0 10 0c0-3-5-9-5-9z" />
+  </I>
+)
+const Aperture = (p: IconProps) => (
+  <I {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3.6 15h8.8M6 6l4.4 7.6M18 6l-4.4 7.6M8 19l7.6-4.4M16 19l-4.4-7.6" />
+  </I>
+)
+const X = (p: IconProps) => (
+  <I {...p}>
+    <path d="M18 6 6 18M6 6l12 12" />
+  </I>
+)
+const Check = (p: IconProps) => (
+  <I {...p}>
+    <path d="M20 6 9 17l-5-5" />
+  </I>
+)
+const Undo2 = (p: IconProps) => (
+  <I {...p}>
+    <path d="M9 14H4l5-5" />
+    <path d="M4 14a8 8 0 1 0 8-8" />
+  </I>
+)
+const Redo2 = (p: IconProps) => (
+  <I {...p}>
+    <path d="M15 9h5l-5 5" />
+    <path d="M20 9a8 8 0 1 0-8 8" />
+  </I>
+)
+const ChevronLeft = (p: IconProps) => (
+  <I {...p}>
+    <path d="M15 18 9 12l6-6" />
+  </I>
+)
+const ChevronRight = (p: IconProps) => (
+  <I {...p}>
+    <path d="M9 6 15 12 9 18" />
+  </I>
+)
+
+// TypeScript types for props and state
+type CropArea = { x: number; y: number; width: number; height: number }
+type HistoryState = {
+  rotation: number
+  flipH: boolean
+  flipV: boolean
+  zoom: number
+  brightness: number
+  contrast: number
+  saturation: number
+  blur: number
+  hue: number
+  grayscale: number
+  sepia: number
+  invert: number
+  vignette: number
+  cropArea: CropArea
+  dataUrl: string | null
+  panX: number
+  panY: number
+}
+type ImageEditorProps = {
+  imageFile: File
+  onSave: (file: File) => void
+  onCancel: () => void
+  className?: string
 }
 
-interface EditorState {
-  rotation: number;
-  flipH: boolean;
-  flipV: boolean;
-  zoom: number;
-  brightness: number;
-  contrast: number;
-  saturation: number;
-  blur: number;
-  hue: number;
-  cropArea: { x: number; y: number; width: number; height: number };
-}
+const ImageEditor = ({ imageFile, onSave, onCancel, className = "" }: ImageEditorProps) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const [activeTab, setActiveTab] = useState<"crop" | "adjust" | "filters" | "transform">("crop")
+  const [workingImage, setWorkingImage] = useState<HTMLImageElement | null>(null)
+  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null)
+  const [isPanelOpen, setIsPanelOpen] = useState(true)
 
-// Custom SVG Icons
-const CropIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M6 2V6H2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M18 2V6H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M18 22V18H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M6 22V18H2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <rect x="8" y="8" width="8" height="8" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
+  const [cropArea, setCropArea] = useState<CropArea>({ x: 0, y: 0, width: 100, height: 100 })
+  const [aspectRatio, setAspectRatio] = useState<string>("free")
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
-const PaletteIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M20 12C21.1 12 22 12.9 22 14C22 15.1 21.1 16 20 16C18.9 16 18 15.1 18 14C18 12.9 18.9 12 20 12Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M4 12C5.1 12 6 12.9 6 14C6 15.1 5.1 16 4 16C2.9 16 2 15.1 2 14C2 12.9 2.9 12 4 12Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M12 20C13.1 20 14 20.9 14 22C14 23.1 13.1 24 12 24C10.9 24 10 23.1 10 22C10 20.9 10.9 20 12 20Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M7 7C8.1 7 9 7.9 9 9C9 10.1 8.1 11 7 11C5.9 11 5 10.1 5 9C5 7.9 5.9 7 7 7Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M17 7C18.1 7 19 7.9 19 9C19 10.1 18.1 11 17 11C15.9 11 15 10.1 15 9C15 7.9 15.9 7 17 7Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M7 17C8.1 17 9 17.9 9 19C9 20.1 8.1 21 7 21C5.9 21 5 20.1 5 19C5 17.9 5.9 17 7 17Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M17 17C18.1 17 19 17.9 19 19C19 20.1 18.1 21 17 21C15.9 21 15 20.1 15 19C15 17.9 15.9 17 17 17Z" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
+  const [rotation, setRotation] = useState(0)
+  const [flipH, setFlipH] = useState(false)
+  const [flipV, setFlipV] = useState(false)
+  const [zoom, setZoom] = useState(1)
 
-const SparklesIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M9.5 1L11 4.5L14.5 6L11 7.5L9.5 11L8 7.5L4.5 6L8 4.5L9.5 1Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M17.5 8L18.5 10.5L21 11.5L18.5 12.5L17.5 15L16.5 12.5L14 11.5L16.5 10.5L17.5 8Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M5.5 13L6.5 15.5L9 16.5L6.5 17.5L5.5 20L4.5 17.5L2 16.5L4.5 15.5L5.5 13Z" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
+  const [brightness, setBrightness] = useState(100)
+  const [contrast, setContrast] = useState(100)
+  const [saturation, setSaturation] = useState(100)
+  const [blur, setBlur] = useState(0)
+  const [hue, setHue] = useState(0)
+  const [grayscale, setGrayscale] = useState(0)
+  const [sepia, setSepia] = useState(0)
+  const [invert, setInvert] = useState(0)
+  const [vignette, setVignette] = useState(0)
+  const [history, setHistory] = useState<HistoryState[]>([])
+  const [historyIndex, setHistoryIndex] = useState(-1)
 
-const RotateIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M23 4V10H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M1 20V14H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M3.51 9C4.01717 7.56678 4.87913 6.2854 6.01547 5.27542C7.1518 4.26543 8.52547 3.55976 10.0083 3.22426C11.4911 2.88875 13.0348 2.93434 14.4952 3.35677C15.9556 3.77921 17.2853 4.56471 18.36 5.64L23 10M1 14L5.64 18.36C6.71475 19.4353 8.04437 20.2208 9.50481 20.6432C10.9652 21.0657 12.5089 21.1113 13.9917 20.7757C15.4745 20.4402 16.8482 19.7346 17.9845 18.7246C19.1209 17.7146 19.9828 16.4332 20.49 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const FlipHorizontalIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M3 12H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M12 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M7 7L3 12L7 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M17 7L21 12L17 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const FlipVerticalIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M12 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M3 12H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M7 7L12 3L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M7 17L12 21L17 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const ZoomInIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-    <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M11 8V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M8 11H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-
-const ZoomOutIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-    <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M8 11H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-
-const SunIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
-    <path d="M12 1V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M12 21V23" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M4.22 4.22L5.64 5.64" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M18.36 18.36L19.78 19.78" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M1 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M21 12H23" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M4.22 19.78L5.64 18.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M18.36 5.64L19.78 4.22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-
-const ContrastIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-    <path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
-
-const DropletIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M12 22C16.4183 22 20 18.4183 20 14C20 8 12 2 12 2C12 2 4 8 4 14C4 18.4183 7.58172 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
-
-const ApertureIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-    <path d="M14.31 8L20.05 17.94" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M9.69 8L3.95 17.94" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M18.62 15L5.38 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M12 2V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-
-const DownloadIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M7 10L12 15L17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const XIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const CheckIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const UndoIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M3 10C3 10 3 9 4 8C5 7 7 5 12 5C17 5 19 7 20 8C21 9 21 10 21 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M3 10V14C3 14 3 15 4 16C5 17 7 19 12 19C17 19 19 17 20 16C21 15 21 14 21 14V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M8 10L3 10L5 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const RedoIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M21 10C21 10 21 9 20 8C19 7 17 5 12 5C7 5 5 7 4 8C3 9 3 10 3 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M21 10V14C21 14 21 15 20 16C19 17 17 19 12 19C7 19 5 17 4 16C3 15 3 14 3 14V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M16 10L21 10L19 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const ChevronLeftIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const ChevronRightIcon = ({ size = 16, className = "", style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const Imageeditor: React.FC<ImageEditorProps> = ({ 
-  imageFile, 
-  onSave, 
-  onCancel,
-  className = ""
-}) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [activeTab, setActiveTab] = useState('crop');
-  const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
-  
-  const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 100, height: 100 });
-  const [aspectRatio, setAspectRatio] = useState('free');
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  
-  const [rotation, setRotation] = useState(0);
-  const [flipH, setFlipH] = useState(false);
-  const [flipV, setFlipV] = useState(false);
-  const [zoom, setZoom] = useState(1);
-  
-  const [brightness, setBrightness] = useState(100);
-  const [contrast, setContrast] = useState(100);
-  const [saturation, setSaturation] = useState(100);
-  const [blur, setBlur] = useState(0);
-  const [hue, setHue] = useState(0);
-  
-  const [history, setHistory] = useState<EditorState[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [panX, setPanX] = useState(0)
+  const [panY, setPanY] = useState(0)
+  const [isPanning, setIsPanning] = useState(false)
+  const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null)
 
   const aspectRatios = [
-    { id: 'free', label: 'Free', ratio: null },
-    { id: '1:1', label: '1:1', ratio: 1 },
-    { id: '16:9', label: '16:9 H', ratio: 16/9 },
-    { id: '9:16', label: '9:16 V', ratio: 9/16 },
-    { id: '4:3', label: '4:3 H', ratio: 4/3 },
-    { id: '3:4', label: '3:4 V', ratio: 3/4 },
-    { id: '4:5', label: '4:5 V', ratio: 4/5 },
-    { id: '5:4', label: '5:4 H', ratio: 5/4 },
-  ];
+    { id: "free", label: "Free", ratio: null },
+    { id: "1:1", label: "1:1", ratio: 1 },
+    { id: "16:9", label: "16:9 H", ratio: 16 / 9 },
+    { id: "9:16", label: "9:16 V", ratio: 9 / 16 },
+    { id: "4:3", label: "4:3 H", ratio: 4 / 3 },
+    { id: "3:4", label: "3:4 V", ratio: 3 / 4 },
+    { id: "4:5", label: "4:5 V", ratio: 4 / 5 },
+    { id: "5:4", label: "5:4 H", ratio: 5 / 4 },
+  ]
 
   const filters = [
-    { id: 'none', name: 'Original', values: { brightness: 100, contrast: 100, saturation: 100, blur: 0, hue: 0 } },
-    { id: 'vivid', name: 'Vivid', values: { brightness: 110, contrast: 120, saturation: 140, blur: 0, hue: 0 } },
-    { id: 'warm', name: 'Warm', values: { brightness: 105, contrast: 105, saturation: 110, blur: 0, hue: 10 } },
-    { id: 'cool', name: 'Cool', values: { brightness: 100, contrast: 110, saturation: 90, blur: 0, hue: -10 } },
-    { id: 'bw', name: 'B&W', values: { brightness: 100, contrast: 120, saturation: 0, blur: 0, hue: 0 } },
-    { id: 'vintage', name: 'Vintage', values: { brightness: 95, contrast: 90, saturation: 80, blur: 0.5, hue: 15 } },
-  ];
-
-  const getCurrentState = useCallback((): EditorState => ({
+    {
+      id: "none",
+      name: "Original",
+      values: {
+        brightness: 100,
+        contrast: 100,
+        saturation: 100,
+        blur: 0,
+        hue: 0,
+        grayscale: 0,
+        sepia: 0,
+        invert: 0,
+        vignette: 0,
+      },
+    },
+    {
+      id: "vivid",
+      name: "Vivid",
+      values: {
+        brightness: 110,
+        contrast: 125,
+        saturation: 145,
+        blur: 0,
+        hue: 0,
+        grayscale: 0,
+        sepia: 0,
+        invert: 0,
+        vignette: 8,
+      },
+    },
+    {
+      id: "warm",
+      name: "Warm",
+      values: {
+        brightness: 105,
+        contrast: 108,
+        saturation: 112,
+        blur: 0,
+        hue: 12,
+        grayscale: 0,
+        sepia: 10,
+        invert: 0,
+        vignette: 10,
+      },
+    },
+    {
+      id: "cool",
+      name: "Cool",
+      values: {
+        brightness: 98,
+        contrast: 110,
+        saturation: 92,
+        blur: 0,
+        hue: -12,
+        grayscale: 0,
+        sepia: 0,
+        invert: 0,
+        vignette: 6,
+      },
+    },
+    {
+      id: "bw",
+      name: "B&W",
+      values: {
+        brightness: 100,
+        contrast: 125,
+        saturation: 0,
+        blur: 0,
+        hue: 0,
+        grayscale: 100,
+        sepia: 0,
+        invert: 0,
+        vignette: 14,
+      },
+    },
+    {
+      id: "vintage",
+      name: "Vintage",
+      values: {
+        brightness: 96,
+        contrast: 92,
+        saturation: 82,
+        blur: 0.4,
+        hue: 15,
+        grayscale: 12,
+        sepia: 18,
+        invert: 0,
+        vignette: 18,
+      },
+    },
+    {
+      id: "matte",
+      name: "Matte",
+      values: {
+        brightness: 104,
+        contrast: 88,
+        saturation: 90,
+        blur: 0,
+        hue: 0,
+        grayscale: 0,
+        sepia: 6,
+        invert: 0,
+        vignette: 12,
+      },
+    },
+    {
+      id: "noir",
+      name: "Noir",
+      values: {
+        brightness: 92,
+        contrast: 135,
+        saturation: 0,
+        blur: 0,
+        hue: 0,
+        grayscale: 100,
+        sepia: 0,
+        invert: 0,
+        vignette: 24,
+      },
+    },
+    {
+      id: "pastel",
+      name: "Pastel",
+      values: {
+        brightness: 108,
+        contrast: 92,
+        saturation: 85,
+        blur: 0,
+        hue: 8,
+        grayscale: 0,
+        sepia: 4,
+        invert: 0,
+        vignette: 6,
+      },
+    },
+    {
+      id: "cinematic",
+      name: "Cinematic",
+      values: {
+        brightness: 102,
+        contrast: 118,
+        saturation: 95,
+        blur: 0,
+        hue: -6,
+        grayscale: 0,
+        sepia: 8,
+        invert: 0,
+        vignette: 22,
+      },
+    },
+    {
+      id: "tealorange",
+      name: "Teal & Orange",
+      values: {
+        brightness: 104,
+        contrast: 112,
+        saturation: 125,
+        blur: 0,
+        hue: 10,
+        grayscale: 0,
+        sepia: 6,
+        invert: 0,
+        vignette: 14,
+      },
+    },
+    {
+      id: "film",
+      name: "Film",
+      values: {
+        brightness: 98,
+        contrast: 92,
+        saturation: 90,
+        blur: 0.2,
+        hue: 5,
+        grayscale: 10,
+        sepia: 16,
+        invert: 0,
+        vignette: 20,
+      },
+    },
+    {
+      id: "dream",
+      name: "Dream",
+      values: {
+        brightness: 110,
+        contrast: 90,
+        saturation: 105,
+        blur: 0.5,
+        hue: 12,
+        grayscale: 0,
+        sepia: 4,
+        invert: 0,
+        vignette: 12,
+      },
+    },
+  ]
+  const getCurrentState = useCallback(async () => {
+    const canvas = canvasRef.current
+    let dataUrl = null
+    if (canvas) {
+      try {
+        dataUrl = canvas.toDataURL("image/png")
+      } catch {
+        dataUrl = null
+      }
+    }
+    return {
+      rotation,
+      flipH,
+      flipV,
+      zoom,
+      brightness,
+      contrast,
+      saturation,
+      blur,
+      hue,
+      grayscale,
+      sepia,
+      invert,
+      vignette,
+      cropArea,
+      dataUrl,
+      panX,
+      panY,
+    }
+  }, [
     rotation,
     flipH,
     flipV,
@@ -243,327 +434,583 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
     saturation,
     blur,
     hue,
-    cropArea
-  }), [rotation, flipH, flipV, zoom, brightness, contrast, saturation, blur, hue, cropArea]);
+    grayscale,
+    sepia,
+    invert,
+    vignette,
+    cropArea,
+    panX,
+    panY,
+  ])
 
+  // push history (makes a snapshot of current canvas)
   const saveToHistory = useCallback(() => {
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(getCurrentState());
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  }, [history, historyIndex, getCurrentState]);
+    getCurrentState().then((state) => {
+      const newHistory = history.slice(0, historyIndex + 1)
+      newHistory.push(state)
+      setHistory(newHistory)
+      setHistoryIndex(newHistory.length - 1)
+    })
+  }, [getCurrentState, history, historyIndex])
 
-  const undo = useCallback(() => {
+  const applyState = useCallback(
+    async (state: Partial<HistoryState>) => {
+      if (!state) return
+      setRotation(state.rotation ?? 0)
+      setFlipH(state.flipH ?? false)
+      setFlipV(state.flipV ?? false)
+      setZoom(state.zoom ?? 1)
+      setBrightness(state.brightness ?? 100)
+      setContrast(state.contrast ?? 100)
+      setSaturation(state.saturation ?? 100)
+      setBlur(state.blur ?? 0)
+      setHue(state.hue ?? 0)
+      setGrayscale(state.grayscale ?? 0)
+      setSepia(state.sepia ?? 0)
+      setInvert(state.invert ?? 0)
+      setVignette(state.vignette ?? 0)
+      setCropArea(state.cropArea ?? { x: 0, y: 0, width: 100, height: 100 })
+      setPanX(state.panX ?? 0)
+      setPanY(state.panY ?? 0)
+      if (state.dataUrl) {
+        const img = new Image()
+        img.crossOrigin = "anonymous"
+        img.src = state.dataUrl
+        await new Promise((res) => (img.onload = res))
+        setWorkingImage(img)
+        requestAnimationFrame(() => drawCanvas(img, state))
+      } else if (workingImage) {
+        drawCanvas(workingImage, state)
+      }
+    },
+    [workingImage],
+  )
+
+  const undo = useCallback(async () => {
     if (historyIndex > 0) {
-      const prevState = history[historyIndex - 1];
-      applyState(prevState);
-      setHistoryIndex(historyIndex - 1);
+      const prev = history[historyIndex - 1]
+      await applyState(prev)
+      setHistoryIndex(historyIndex - 1)
     }
-  }, [historyIndex, history]);
+  }, [historyIndex, history, applyState])
 
-  const redo = useCallback(() => {
+  const redo = useCallback(async () => {
     if (historyIndex < history.length - 1) {
-      const nextState = history[historyIndex + 1];
-      applyState(nextState);
-      setHistoryIndex(historyIndex + 1);
+      const next = history[historyIndex + 1]
+      await applyState(next)
+      setHistoryIndex(historyIndex + 1)
     }
-  }, [historyIndex, history]);
-
-  const applyState = (state: EditorState) => {
-    setRotation(state.rotation);
-    setFlipH(state.flipH);
-    setFlipV(state.flipV);
-    setZoom(state.zoom);
-    setBrightness(state.brightness);
-    setContrast(state.contrast);
-    setSaturation(state.saturation);
-    setBlur(state.blur);
-    setHue(state.hue);
-    setCropArea(state.cropArea);
-  };
+  }, [historyIndex, history, applyState])
 
   useEffect(() => {
     if (imageFile) {
-      const img = new Image();
-      img.src = URL.createObjectURL(imageFile);
+      const url = URL.createObjectURL(imageFile)
+      const img = new Image()
+      img.crossOrigin = "anonymous"
+      img.src = url
       img.onload = () => {
-        setOriginalImage(img);
-        drawCanvas(img);
-        saveToHistory();
-      };
+        URL.revokeObjectURL(url)
+        setOriginalImage(img)
+        setWorkingImage(img)
+        drawCanvas(img)
+        saveToHistory()
+      }
     }
-  }, [imageFile]);
+  }, [imageFile])
 
   useEffect(() => {
-    if (originalImage) {
-      drawCanvas(originalImage);
-    }
-  }, [rotation, flipH, flipV, zoom, brightness, contrast, saturation, blur, hue]);
+    if (workingImage) drawCanvas(workingImage)
+  }, [
+    rotation,
+    flipH,
+    flipV,
+    zoom,
+    brightness,
+    contrast,
+    saturation,
+    blur,
+    hue,
+    grayscale,
+    sepia,
+    invert,
+    vignette,
+    workingImage,
+    panX,
+    panY,
+  ])
 
-  const drawCanvas = (img: HTMLImageElement) => {
-    const canvas = canvasRef.current;
-    if (!canvas || !img) return;
+  const drawCanvas = (img: HTMLImageElement, stateOverride: Partial<HistoryState> | null = null) => {
+    const canvas = canvasRef.current
+    if (!canvas || !img) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const maxWidth = Math.min(window.innerWidth - 48, 1600)
+    const maxHeight = Math.min(window.innerHeight - 220, 1200)
 
-    const maxWidth = 1200;
-    const maxHeight = 800;
-    
-    let width = img.width;
-    let height = img.height;
-    
+    let width = img.width
+    let height = img.height
+
     if (width > maxWidth || height > maxHeight) {
-      const ratio = Math.min(maxWidth / width, maxHeight / height);
-      width *= ratio;
-      height *= ratio;
+      const ratio = Math.min(maxWidth / width, maxHeight / height)
+      width = Math.round(width * ratio)
+      height = Math.round(height * ratio)
     }
 
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = width
+    canvas.height = height
 
-    ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) blur(${blur}px) hue-rotate(${hue}deg)`;
-    
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate((rotation * Math.PI) / 180);
-    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
-    ctx.scale(zoom, zoom);
-    
-    ctx.drawImage(img, -width / 2, -height / 2, width, height);
-    ctx.restore();
-  };
+    ctx.save()
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  const handleCropMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (activeTab !== 'crop') return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
+    const s = stateOverride || {
+      rotation,
+      flipH,
+      flipV,
+      zoom,
+      brightness,
+      contrast,
+      saturation,
+      blur,
+      hue,
+      grayscale,
+      sepia,
+      invert,
+      vignette,
+      panX,
+      panY,
+    }
+
+    ctx.filter = `grayscale(${(s as any).grayscale || 0}%) sepia(${(s as any).sepia || 0}%) invert(${(s as any).invert || 0}%) brightness(${(s as any).brightness}%) contrast(${(s as any).contrast}%) saturate(${(s as any).saturation}%) blur(${(s as any).blur}px) hue-rotate(${(s as any).hue}deg)`
+
+    ctx.translate(canvas.width / 2, canvas.height / 2)
+    ctx.rotate((((s as any).rotation || 0) * Math.PI) / 180)
+    ctx.scale((s as any).flipH ? -1 : 1, (s as any).flipV ? -1 : 1)
+    ctx.scale((s as any).zoom, (s as any).zoom)
+    ctx.translate((s as any).panX || 0, (s as any).panY || 0)
+
+    ctx.drawImage(img, -width / 2, -height / 2, width, height)
+    ctx.restore()
+
+    // vignette overlay
+    const v = (s as any).vignette || 0
+    if (v > 0) {
+      const intensity = Math.min(0.6, (v / 100) * 0.6)
+      const g = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.min(canvas.width, canvas.height) * 0.2,
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.max(canvas.width, canvas.height) * 0.65,
+      )
+      g.addColorStop(0, "rgba(0,0,0,0)")
+      g.addColorStop(1, `rgba(0,0,0,${intensity})`)
+      ctx.fillStyle = g
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+  }
+
+  interface PointerPosition {
+    x: number
+    y: number
+  }
+
+  type PointerEventLike = React.MouseEvent | React.TouchEvent | { touches?: { [key: number]: { clientX: number; clientY: number } }; clientX?: number; clientY?: number }
+
+  const getPointer = (e: PointerEventLike): PointerPosition => {
+    const canvas = canvasRef.current
+    if (!canvas) return { x: 0, y: 0 }
+    const rect = canvas.getBoundingClientRect()
+    const clientX =
+      "touches" in e && e.touches
+        ? e.touches[0].clientX
+        : (e as React.MouseEvent).clientX
+    const clientY =
+      "touches" in e && e.touches
+        ? e.touches[0].clientY
+        : (e as React.MouseEvent).clientY
+    return {
+      x: ((clientX - rect.left) / rect.width) * 100,
+      y: ((clientY - rect.top) / rect.height) * 100,
+    }
+  }
+
+  const handleCropStart = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (activeTab !== "crop") return;
+    const p = getPointer(e);
     setIsDragging(true);
-    setDragStart({ x, y });
-    setCropArea({ x, y, width: 0, height: 0 });
+    dragStart.current = { x: p.x, y: p.y };
+    setCropArea({ x: p.x, y: p.y, width: 0, height: 0 });
   };
 
-  const handleCropMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDragging || activeTab !== 'crop') return;
-    
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    let width = x - dragStart.x;
-    let height = y - dragStart.y;
-    
-    if (aspectRatio !== 'free') {
-      const ratio = aspectRatios.find(r => r.id === aspectRatio)?.ratio;
+  interface DragStartRef {
+    x: number
+    y: number
+  }
+
+  const handleCropMove = (
+    e: React.MouseEvent | React.TouchEvent
+  ): void => {
+    if (!isDragging || activeTab !== "crop") return
+    const p = getPointer(e)
+    const width = p.x - dragStart.current.x
+    let height = p.y - dragStart.current.y
+
+    if (aspectRatio !== "free") {
+      const ratio = aspectRatios.find((r) => r.id === aspectRatio)?.ratio
       if (ratio) {
-        const absWidth = Math.abs(width);
-        height = (width < 0 ? -1 : 1) * (absWidth / ratio);
+        const absWidth = Math.abs(width)
+        height = (width < 0 ? -1 : 1) * (absWidth / ratio)
       }
     }
-    
+
     setCropArea({
-      x: width < 0 ? x : dragStart.x,
-      y: height < 0 ? y : dragStart.y,
+      x: width < 0 ? p.x : dragStart.current.x,
+      y: height < 0 ? p.y : dragStart.current.y,
       width: Math.abs(width),
-      height: Math.abs(height)
-    });
-  };
+      height: Math.abs(height),
+    })
+  }
+  const handleCropEnd = async () => {
+    if (!isDragging) return
+    setIsDragging(false)
+    // applyCrop() // removed auto-apply crop
+  }
 
-  const handleCropMouseUp = () => {
-    setIsDragging(false);
-  };
+  const applyCrop = async () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
 
-  const applyCrop = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    const cropX = (cropArea.x / 100) * canvas.width;
-    const cropY = (cropArea.y / 100) * canvas.height;
-    const cropWidth = (cropArea.width / 100) * canvas.width;
-    const cropHeight = (cropArea.height / 100) * canvas.height;
-    
-    const imageData = ctx.getImageData(cropX, cropY, cropWidth, cropHeight);
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
-    ctx.putImageData(imageData, 0, 0);
-    
-    setCropArea({ x: 0, y: 0, width: 100, height: 100 });
-    saveToHistory();
-  };
+    const cropX = (cropArea.x / 100) * canvas.width
+    const cropY = (cropArea.y / 100) * canvas.height
+    const cropWidth = (cropArea.width / 100) * canvas.width
+    const cropHeight = (cropArea.height / 100) * canvas.height
 
-  const applyFilter = (filter: typeof filters[0]) => {
-    setBrightness(filter.values.brightness);
-    setContrast(filter.values.contrast);
-    setSaturation(filter.values.saturation);
-    setBlur(filter.values.blur);
-    setHue(filter.values.hue);
-    saveToHistory();
-  };
+    if (cropWidth <= 0 || cropHeight <= 0) return
+
+    const temp = document.createElement("canvas")
+    temp.width = Math.round(cropWidth)
+    temp.height = Math.round(cropHeight)
+    const tctx = temp.getContext("2d")
+    const imgData = ctx.getImageData(cropX, cropY, cropWidth, cropHeight)
+    tctx?.putImageData(imgData, 0, 0)
+
+    const dataUrl = temp.toDataURL("image/png")
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.src = dataUrl
+    await new Promise((res) => (img.onload = res))
+    setWorkingImage(img)
+    setCropArea({ x: 0, y: 0, width: 100, height: 100 })
+    drawCanvas(img)
+    saveToHistory()
+  }
+
+  const applyFilter = (filter: { values: any }) => {
+    const v = filter.values
+    setBrightness(v.brightness)
+    setContrast(v.contrast)
+    setSaturation(v.saturation)
+    setBlur(v.blur)
+    setHue(v.hue)
+    setGrayscale(v.grayscale ?? 0)
+    setSepia(v.sepia ?? 0)
+    setInvert(v.invert ?? 0)
+    setVignette(v.vignette ?? 0)
+    requestAnimationFrame(() => saveToHistory())
+  }
 
   const handleReset = () => {
-    setRotation(0);
-    setFlipH(false);
-    setFlipV(false);
-    setZoom(1);
-    setBrightness(100);
-    setContrast(100);
-    setSaturation(100);
-    setBlur(0);
-    setHue(0);
-    setCropArea({ x: 0, y: 0, width: 100, height: 100 });
-    if (originalImage) {
-      drawCanvas(originalImage);
-    }
-  };
+    setRotation(0)
+    setFlipH(false)
+    setFlipV(false)
+    setZoom(1)
+    setBrightness(100)
+    setContrast(100)
+    setSaturation(100)
+    setBlur(0)
+    setHue(0)
+    setGrayscale(0)
+    setSepia(0)
+    setInvert(0)
+    setVignette(0)
+    setCropArea({ x: 0, y: 0, width: 100, height: 100 })
+    setPanX(0)
+    setPanY(0)
+    if (originalImage) setWorkingImage(originalImage)
+    requestAnimationFrame(() => workingImage && drawCanvas(workingImage))
+    saveToHistory()
+  }
 
   const handleSave = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
     canvas.toBlob((blob) => {
       if (blob) {
-        const file = new File([blob], imageFile.name, { type: 'image/png' });
-        onSave(file);
+        const file = new File([blob], imageFile.name, { type: "image/png" })
+        onSave(file)
       }
-    });
-  };
+    })
+  }
 
   const tabs = [
-    { id: 'crop', label: 'Crop', icon: CropIcon },
-    { id: 'adjust', label: 'Adjust', icon: PaletteIcon },
-    { id: 'filters', label: 'Filters', icon: SparklesIcon },
-    { id: 'transform', label: 'Transform', icon: RotateIcon }
-  ];
+    { id: "crop", label: "Crop", icon: Crop },
+    { id: "adjust", label: "Adjust", icon: Palette },
+    { id: "filters", label: "Filters", icon: Sparkles },
+    { id: "transform", label: "Transform", icon: RotateCw },
+  ]
+
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 640 : false)
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 640)
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [])
+
+  const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n))
+  const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    const factor = e.deltaY > 0 ? 0.95 : 1.05
+    setZoom((z) => clamp(z * factor, 0.5, 4))
+  }
+  const pinchStart = useRef<number | null>(null)
+  const startZoom = useRef<number>(1)
+  const getTouchDistance = (touches: TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX
+    const dy = touches[0].clientY - touches[1].clientY
+    return Math.hypot(dx, dy)
+  }
+
+  // add pan handlers for Transform tab
+  const handlePanStart = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const clientX = "touches" in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX
+    const clientY = "touches" in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY
+    panStartRef.current = { x: clientX - rect.left, y: clientY - rect.top, panX, panY }
+    setIsPanning(true)
+  }
+  const handlePanMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isPanning || !panStartRef.current) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const clientX = "touches" in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX
+    const clientY = "touches" in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY
+    const dx = clientX - rect.left - panStartRef.current.x
+    const dy = clientY - rect.top - panStartRef.current.y
+    setPanX(panStartRef.current.panX + dx / Math.max(zoom, 0.01))
+    setPanY(panStartRef.current.panY + dy / Math.max(zoom, 0.01))
+  }
+  const handlePanEnd = () => {
+    if (isPanning) {
+      setIsPanning(false)
+      saveToHistory()
+    }
+  }
+
+  const handleTouchStartEnhanced = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      pinchStart.current = getTouchDistance(e.touches as unknown as TouchList)
+      startZoom.current = zoom
+    } else {
+      if (activeTab === "transform") handlePanStart(e)
+      else handleCropStart(e as React.TouchEvent<HTMLDivElement>)
+    }
+  }
+  const handleTouchMoveEnhanced = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && pinchStart.current) {
+      const dist = getTouchDistance(e.touches as unknown as TouchList)
+      const scale = dist / pinchStart.current
+      setZoom(clamp(startZoom.current * scale, 0.5, 4))
+    } else {
+      if (activeTab === "transform") handlePanMove(e)
+      else handleCropMove(e)
+    }
+  }
+  const handleTouchEndEnhanced = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) pinchStart.current = null
+    if (activeTab === "transform") handlePanEnd()
+    else handleCropEnd()
+  }
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault()
+        if (e.shiftKey) redo()
+        else undo()
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault()
+        handleSave()
+      }
+      if (e.key.toLowerCase() === "r") {
+        e.preventDefault()
+        handleReset()
+      }
+      if (e.key.toLowerCase() === "p") {
+        e.preventDefault()
+        setIsPanelOpen((v) => !v)
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [undo, redo])
 
   return createPortal(
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', height: '100vh', width: '100vw', backgroundColor: '#0f0f0f' }} className="dark">
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderBottom: '1px solid #2a2a2a', backgroundColor: '#1a1a1a' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <ApertureIcon style={{ width: 20, height: 20, color: '#3b82f6' }} />
-            <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>Image Editor</h2>
+    <div className={`image-editor-root ${className}`} style={{ position: "fixed", inset: 0, zIndex: 50 }}>
+      <style>{`
+        .image-editor-root{
+          display:flex;height:100vh;width:100vw;
+          background: var(--background); color: var(--foreground);
+          --ie-surface: var(--card);
+          --ie-border: var(--border);
+          --ie-primary: var(--primary);
+          --ie-primary-foreground: var(--primary-foreground);
+          --ie-muted: var(--muted);
+          --ie-muted-foreground: var(--muted-foreground);
+        }
+        .ie-header{
+          display:flex;align-items:center;justify-content:space-between;
+          padding:12px;border-bottom:1px solid var(--ie-border);
+          background: var(--ie-surface);
+        }
+        .ie-canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+        .ie-canvas{
+          max-width:100%;max-height:calc(100vh - 12rem);
+          border:1px solid var(--ie-border);border-radius:12px;
+          box-shadow:0 20px 40px -16px color-mix(in oklab, var(--foreground) 10%, transparent);
+          background: var(--muted);
+        }
+        .ie-bottom-tabs{border-top:1px solid var(--ie-border);background:var(--ie-surface);padding:12px}
+        .ie-panel{border-left:1px solid var(--ie-border);background:var(--ie-surface);overflow:hidden}
+        .ie-divider{width:1px;height:20px;background:var(--ie-border);margin:0 4px}
+        .ie-icon-accent{color: var(--primary)}
+        .ie-btn{display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer}
+        .ie-btn--ghost{background:transparent;color:var(--foreground);padding:8px;border-radius:10px}
+        .ie-btn--ghost[disabled]{opacity:.35;cursor:not-allowed}
+        .ie-btn--ghost:hover{background:color-mix(in oklab, var(--foreground) 12%, transparent)}
+        .ie-btn--primary{background:var(--ie-primary);color:var(--ie-primary-foreground);padding:8px 12px;border-radius:10px;font-weight:600}
+        .ie-btn--primary:hover{filter:brightness(.98)}
+        .ie-btn--icon{padding:8px;border-radius:10px;background:transparent}
+        .ie-tab{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:500}
+        .ie-tab--active{background:var(--ie-primary);color:var(--ie-primary-foreground)}
+        .ie-tab--idle{background:transparent;color:var(--foreground)}
+        .ie-chip{padding:6px 8px;border-radius:8px;font-size:12px;font-weight:500;border:none;cursor:pointer;background:var(--muted);color:var(--muted-foreground)}
+        .ie-chip--active{background:var(--ie-primary);color:var(--ie-primary-foreground)}
+        .ie-apply{width:100%;background:var(--ie-primary);color:var(--ie-primary-foreground);padding:8px 12px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer}
+        .ie-filter{width:100%;text-align:left;padding:8px 12px;border-radius:10px;background:var(--muted);color:var(--muted-foreground);border:none;cursor:pointer;font-size:14px;font-weight:500}
+        .ie-toggle{flex:1;padding:8px 12px;border-radius:10px;font-size:14px;font-weight:500;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--muted);color:var(--muted-foreground)}
+        .ie-toggle--on{background:var(--ie-primary);color:var(--ie-primary-foreground)}
+        input[type="range"]{width:100%;height:6px;background:var(--muted);border-radius:9999px;outline:none;cursor:pointer}
+        input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:var(--ie-primary);cursor:pointer}
+        input[type="range"]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--ie-primary);cursor:pointer;border:none}
+        @media (max-width:640px){
+          .image-editor-root{flex-direction:column}
+          .ie-panel{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom));height:48vh;width:100%;border-left:none;border-top:1px solid var(--ie-border)}
+          .ie-toggle-panel{right:8px;top:auto;bottom:calc(48vh + 56px + env(safe-area-inset-bottom));}
+          .ie-header{padding:10px}
+          .ie-canvas-wrap{padding:8px}
+          .ie-canvas{max-height:calc(100vh - 56px - env(safe-area-inset-bottom) - 48vh - 40px)}
+          .ie-bottom-bar{
+            position:fixed;left:0;right:0;bottom:0;
+            height:calc(56px + env(safe-area-inset-bottom));
+            background:var(--ie-surface);border-top:1px solid var(--ie-border);
+            display:flex;align-items:center;gap:8px;padding:8px;
+            padding-bottom:calc(8px + env(safe-area-inset-bottom));
+          }
+        }
+        /* cursor feedback while panning */
+        .ie-canvas-wrap.panning { cursor: grabbing; }
+      `}</style>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <div className="ie-header" style={{ alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Aperture className="ie-icon-accent" size={20} />
+            <h2 style={{ fontSize: 14, fontWeight: 600 }}>Image Editor</h2>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {/* <button
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              aria-label="Undo"
               onClick={undo}
               disabled={historyIndex <= 0}
-              style={{ 
-                padding: '8px', 
-                borderRadius: '8px', 
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: historyIndex <= 0 ? 'not-allowed' : 'pointer',
-                opacity: historyIndex <= 0 ? 0.3 : 1,
-                color: '#e5e5e5'
-              }}
-              onMouseEnter={(e) => { if (historyIndex > 0) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               title="Undo"
+              className="ie-btn ie-btn--ghost"
             >
-              <UndoIcon style={{ width: 16, height: 16 }} />
+              <Undo2 size={16} />
             </button>
             <button
+              aria-label="Redo"
               onClick={redo}
               disabled={historyIndex >= history.length - 1}
-              style={{ 
-                padding: '8px', 
-                borderRadius: '8px', 
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: historyIndex >= history.length - 1 ? 'not-allowed' : 'pointer',
-                opacity: historyIndex >= history.length - 1 ? 0.3 : 1,
-                color: '#e5e5e5'
-              }}
-              onMouseEnter={(e) => { if (historyIndex < history.length - 1) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               title="Redo"
+              className="ie-btn ie-btn--ghost"
             >
-              <RedoIcon style={{ width: 16, height: 16 }} />
-            </button> */}
-            <div style={{ width: '1px', height: '20px', backgroundColor: '#2a2a2a', margin: '0 4px' }} />
-            <button
-              onClick={handleSave}
-              style={{ 
-                padding: '6px 12px', 
-                borderRadius: '8px', 
-                backgroundColor: '#3b82f6', 
-                color: '#ffffff',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-            >
-              <CheckIcon style={{ width: 14, height: 14 }} />
-              Save
+              <Redo2 size={16} />
             </button>
-            <button
-              onClick={onCancel}
-              style={{ 
-                padding: '8px', 
-                borderRadius: '8px', 
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#e5e5e5'
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#e5e5e5'; }}
-              title="Cancel"
-            >
-              <XIcon style={{ width: 16, height: 16 }} />
+            <div className="ie-divider" />
+            <button aria-label="Reset" onClick={handleReset} title="Reset" className="ie-btn ie-btn--ghost">
+              Reset
+            </button>
+            <button aria-label="Save" onClick={handleSave} title="Save" className="ie-btn ie-btn--primary">
+              <Check size={14} />
+              <span style={{ marginLeft: 6 }}>Save</span>
+            </button>
+            <button aria-label="Cancel" onClick={onCancel} title="Cancel" className="ie-btn ie-btn--ghost ie-btn--icon">
+              <X size={16} />
             </button>
           </div>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', overflow: 'auto' }}>
-          <div style={{ position: 'relative' }}>
-            <canvas
-              ref={canvasRef}
-              style={{ 
-                maxWidth: '100%', 
-                maxHeight: 'calc(100vh - 12rem)', 
-                border: '1px solid #2a2a2a', 
-                borderRadius: '8px', 
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                cursor: activeTab === 'crop' ? 'crosshair' : 'default'
-              }}
-              onMouseDown={handleCropMouseDown}
-              onMouseMove={handleCropMouseMove}
-              onMouseUp={handleCropMouseUp}
-              onMouseLeave={handleCropMouseUp}
-            />
-            
-            {activeTab === 'crop' && cropArea.width > 0 && cropArea.height > 0 && (
+        <div
+          className={`ie-canvas-wrap ${isPanning ? "panning" : ""}`}
+          onMouseDown={(e) => (activeTab === "crop" ? handleCropStart(e) : handlePanStart(e))}
+          onMouseMove={(e) => (activeTab === "crop" ? handleCropMove(e) : handlePanMove(e))}
+          onMouseUp={() => (activeTab === "crop" ? handleCropEnd() : handlePanEnd())}
+          onMouseLeave={() => (activeTab === "crop" ? handleCropEnd() : handlePanEnd())}
+          onWheel={onWheel}
+          onTouchStart={handleTouchStartEnhanced}
+          onTouchMove={handleTouchMoveEnhanced}
+          onTouchEnd={handleTouchEndEnhanced}
+        >
+          <div style={{ position: "relative" }}>
+            <canvas ref={canvasRef} className="ie-canvas" />
+
+            {activeTab === "crop" && cropArea.width > 0 && cropArea.height > 0 && (
               <div
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   left: `${cropArea.x}%`,
                   top: `${cropArea.y}%`,
                   width: `${cropArea.width}%`,
                   height: `${cropArea.height}%`,
-                  border: '2px solid #3b82f6',
-                  boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
-                  pointerEvents: 'none'
+                  border: "2px solid var(--ie-primary)",
+                  boxShadow: "0 0 0 9999px color-mix(in oklab, var(--foreground) 75%, transparent)",
+                  pointerEvents: "none",
                 }}
               >
-                <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'repeat(3, 1fr)' }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3,1fr)",
+                    gridTemplateRows: "repeat(3,1fr)",
+                  }}
+                >
                   {[...Array(9)].map((_, i) => (
-                    <div key={i} style={{ border: '1px solid rgba(59, 130, 246, 0.3)' }} />
+                    <div
+                      key={i}
+                      style={{ border: "1px solid color-mix(in oklab, var(--ie-primary) 30%, transparent)" }}
+                    />
                   ))}
                 </div>
               </div>
@@ -571,31 +1018,17 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
           </div>
         </div>
 
-        <div style={{ borderTop: '1px solid #2a2a2a', backgroundColor: '#1a1a1a', padding: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto' }}>
-            {tabs.map(tab => (
+        <div className="ie-bottom-tabs">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, overflowX: "auto" }}>
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  backgroundColor: activeTab === tab.id ? '#3b82f6' : 'transparent',
-                  color: activeTab === tab.id ? '#ffffff' : '#e5e5e5',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  whiteSpace: 'nowrap'
-                }}
-                onMouseEnter={(e) => { if (activeTab !== tab.id) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
-                onMouseLeave={(e) => { if (activeTab !== tab.id) e.currentTarget.style.backgroundColor = 'transparent'; }}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`ie-tab ${activeTab === tab.id ? "ie-tab--active" : "ie-tab--idle"}`}
+                aria-pressed={activeTab === tab.id}
               >
-                <tab.icon style={{ width: 14, height: 14 }} />
-                {tab.label}
+                <tab.icon size={14} />
+                {!isMobile && <span style={{ marginLeft: 6 }}>{tab.label}</span>}
               </button>
             ))}
           </div>
@@ -605,41 +1038,55 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
       <AnimatePresence>
         {isPanelOpen && (
           <motion.div
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 280, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            style={{ borderLeft: '1px solid #2a2a2a', backgroundColor: '#1a1a1a', overflow: 'hidden' }}
+            initial={isMobile ? { y: 300, opacity: 1 } : { width: 0, opacity: 0 }}
+            animate={isMobile ? { y: 0, opacity: 1 } : { width: "min(360px, 32vw)", opacity: 1 }}
+            exit={isMobile ? { y: 300, opacity: 1 } : { width: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 220, damping: 24 }}
+            className="ie-panel"
           >
-            <div style={{ width: 280, height: '100%', overflowY: 'auto', padding: '16px' }}>
+            <div
+              style={{ width: isMobile ? "100%" : "min(360px, 32vw)", height: "100%", overflowY: "auto", padding: 16 }}
+            >
+              {isMobile ? (
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 4,
+                      borderRadius: 9999,
+                      background: "var(--ie-border)",
+                      marginBottom: 12,
+                    }}
+                  />
+                </div>
+              ) : null}
               <AnimatePresence mode="wait">
-                {activeTab === 'crop' && (
+                {activeTab === "crop" && (
                   <motion.div
                     key="crop"
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+                    style={{ display: "flex", flexDirection: "column", gap: "12px" }}
                   >
                     <div>
-                      <label style={{ fontSize: '12px', fontWeight: 500, marginBottom: '8px', display: 'block', color: '#e5e5e5' }}>Aspect Ratio</label>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
-                        {aspectRatios.map(ratio => (
+                      <label
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 500,
+                          marginBottom: "8px",
+                          display: "block",
+                          color: "var(--foreground)",
+                        }}
+                      >
+                        Aspect Ratio
+                      </label>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }}>
+                        {aspectRatios.map((ratio) => (
                           <button
                             key={ratio.id}
                             onClick={() => setAspectRatio(ratio.id)}
-                            style={{ 
-                              padding: '6px 8px',
-                              borderRadius: '6px',
-                              fontSize: '12px',
-                              fontWeight: 500,
-                              backgroundColor: aspectRatio === ratio.id ? '#3b82f6' : '#2a2a2a',
-                              color: aspectRatio === ratio.id ? '#ffffff' : '#e5e5e5',
-                              border: 'none',
-                              cursor: 'pointer'
-                            }}
-                            onMouseEnter={(e) => { if (aspectRatio !== ratio.id) e.currentTarget.style.backgroundColor = '#3a3a3a'; }}
-                            onMouseLeave={(e) => { if (aspectRatio !== ratio.id) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
+                            className={`ie-chip ${aspectRatio === ratio.id ? "ie-chip--active" : ""}`}
                           >
                             {ratio.label}
                           </button>
@@ -647,34 +1094,14 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       </div>
                     </div>
                     {cropArea.width > 0 && (
-                      <button
-                        onClick={applyCrop}
-                        style={{ 
-                          width: '100%',
-                          backgroundColor: '#3b82f6',
-                          color: '#ffffff',
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                      >
-                        <CropIcon style={{ width: 14, height: 14 }} />
+                      <button onClick={applyCrop} className="ie-apply">
                         Apply Crop
                       </button>
                     )}
                   </motion.div>
                 )}
 
-                {activeTab === 'adjust' && (
+                {activeTab === "adjust" && (
                   <motion.div
                     key="adjust"
                     initial={{ opacity: 0, x: 10 }}
@@ -683,7 +1110,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                     className="space-y-3"
                   >
                     <SliderControl
-                      icon={<SunIcon className="text-yellow-500" />}
+                      icon={<Sun size={14} className="ie-icon-accent" />}
                       label="Brightness"
                       value={brightness}
                       onChange={setBrightness}
@@ -693,7 +1120,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       unit="%"
                     />
                     <SliderControl
-                      icon={<ContrastIcon className="text-purple-500" />}
+                      icon={<Contrast size={14} className="ie-icon-accent" />}
                       label="Contrast"
                       value={contrast}
                       onChange={setContrast}
@@ -703,7 +1130,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       unit="%"
                     />
                     <SliderControl
-                      icon={<DropletIcon className="text-blue-500" />}
+                      icon={<Droplet size={14} className="ie-icon-accent" />}
                       label="Saturation"
                       value={saturation}
                       onChange={setSaturation}
@@ -713,7 +1140,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       unit="%"
                     />
                     <SliderControl
-                      icon={<ApertureIcon className="text-gray-500" />}
+                      icon={<Aperture size={14} />}
                       label="Blur"
                       value={blur}
                       onChange={setBlur}
@@ -724,7 +1151,7 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       unit="px"
                     />
                     <SliderControl
-                      icon={<PaletteIcon className="text-pink-500" />}
+                      icon={<Palette size={14} className="ie-icon-accent" />}
                       label="Hue"
                       value={hue}
                       onChange={setHue}
@@ -733,52 +1160,112 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       max={180}
                       unit="°"
                     />
+                    <SliderControl
+                      icon={
+                        <I size={14}>
+                          <path d="M4 12h16" />
+                        </I>
+                      }
+                      label="Grayscale"
+                      value={grayscale}
+                      onChange={setGrayscale}
+                      onChangeEnd={saveToHistory}
+                      min={0}
+                      max={100}
+                      unit="%"
+                    />
+                    <SliderControl
+                      icon={
+                        <I size={14}>
+                          <path d="M4 20c8-8 8-8 16 0" />
+                        </I>
+                      }
+                      label="Sepia"
+                      value={sepia}
+                      onChange={setSepia}
+                      onChangeEnd={saveToHistory}
+                      min={0}
+                      max={100}
+                      unit="%"
+                    />
+                    <SliderControl
+                      icon={
+                        <I size={14}>
+                          <circle cx="12" cy="12" r="6" />
+                          <path d="M18 6l-12 12" />
+                        </I>
+                      }
+                      label="Invert"
+                      value={invert}
+                      onChange={setInvert}
+                      onChangeEnd={saveToHistory}
+                      min={0}
+                      max={100}
+                      unit="%"
+                    />
+                    <SliderControl
+                      icon={
+                        <I size={14}>
+                          <circle cx="12" cy="12" r="9" />
+                        </I>
+                      }
+                      label="Vignette"
+                      value={vignette}
+                      onChange={setVignette}
+                      onChangeEnd={saveToHistory}
+                      min={0}
+                      max={100}
+                      unit="%"
+                    />
                   </motion.div>
                 )}
 
-                {activeTab === 'filters' && (
+                {activeTab === "filters" && (
                   <motion.div
                     key="filters"
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+                    style={{ display: "flex", flexDirection: "column", gap: "6px" }}
                   >
-                    {filters.map(filter => (
-                      <button
-                        key={filter.id}
-                        onClick={() => applyFilter(filter)}
-                        style={{
-                          width: '100%',
-                          textAlign: 'left',
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          backgroundColor: '#2a2a2a',
-                          color: '#e5e5e5',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          fontWeight: 500
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3a3a3a'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2a2a2a'}
-                      >
+                    {filters.map((filter) => (
+                      <button key={filter.id} onClick={() => applyFilter(filter)} className="ie-filter">
                         {filter.name}
                       </button>
                     ))}
                   </motion.div>
                 )}
 
-                {activeTab === 'transform' && (
+                {activeTab === "transform" && (
                   <motion.div
                     key="transform"
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+                    style={{ display: "flex", flexDirection: "column", gap: "12px" }}
                   >
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => {
+                          setRotation((r) => (r - 90 + 360) % 360)
+                          saveToHistory()
+                        }}
+                        className="ie-toggle"
+                      >
+                        -90°
+                      </button>
+                      <button
+                        onClick={() => {
+                          setRotation((r) => (r + 90) % 360)
+                          saveToHistory()
+                        }}
+                        className="ie-toggle"
+                      >
+                        +90°
+                      </button>
+                    </div>
                     <SliderControl
-                      icon={<RotateIcon />}
+                      icon={<RotateCw size={14} />}
                       label="Rotation"
                       value={rotation}
                       onChange={setRotation}
@@ -787,56 +1274,28 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
                       max={360}
                       unit="°"
                     />
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: "flex", gap: "8px" }}>
                       <button
-                        onClick={() => { setFlipH(!flipH); saveToHistory(); }}
-                        style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          backgroundColor: flipH ? '#3b82f6' : '#2a2a2a',
-                          color: flipH ? '#ffffff' : '#e5e5e5',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px'
+                        onClick={() => {
+                          setFlipH(!flipH)
+                          saveToHistory()
                         }}
-                        onMouseEnter={(e) => { if (!flipH) e.currentTarget.style.backgroundColor = '#3a3a3a'; }}
-                        onMouseLeave={(e) => { if (!flipH) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
+                        className={`ie-toggle ${flipH ? "ie-toggle--on" : ""}`}
                       >
-                        <FlipHorizontalIcon style={{ width: 14, height: 14 }} />
                         Flip H
                       </button>
                       <button
-                        onClick={() => { setFlipV(!flipV); saveToHistory(); }}
-                        style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          backgroundColor: flipV ? '#3b82f6' : '#2a2a2a',
-                          color: flipV ? '#ffffff' : '#e5e5e5',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px'
+                        onClick={() => {
+                          setFlipV(!flipV)
+                          saveToHistory()
                         }}
-                        onMouseEnter={(e) => { if (!flipV) e.currentTarget.style.backgroundColor = '#3a3a3a'; }}
-                        onMouseLeave={(e) => { if (!flipV) e.currentTarget.style.backgroundColor = '#2a2a2a'; }}
+                        className={`ie-toggle ${flipV ? "ie-toggle--on" : ""}`}
                       >
-                        <FlipVerticalIcon style={{ width: 14, height: 14 }} />
                         Flip V
                       </button>
                     </div>
                     <SliderControl
-                      icon={<ZoomInIcon />}
+                      icon={<ZoomIn size={14} />}
                       label="Zoom"
                       value={zoom}
                       onChange={setZoom}
@@ -856,103 +1315,62 @@ const Imageeditor: React.FC<ImageEditorProps> = ({
 
       <button
         onClick={() => setIsPanelOpen(!isPanelOpen)}
+        className="ie-toggle-panel ie-btn ie-btn--ghost ie-btn--icon"
         style={{
-          position: 'absolute',
-          right: isPanelOpen ? '280px' : '0',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          backgroundColor: '#1a1a1a',
-          border: '1px solid #2a2a2a',
-          borderTopLeftRadius: '8px',
-          borderBottomLeftRadius: '8px',
-          padding: '4px',
-          cursor: 'pointer',
-          color: '#e5e5e5'
+          position: "absolute",
+          right: isPanelOpen ? (isMobile ? 8 : "min(360px, 32vw)") : 0,
+          top: "50%",
+          transform: "translateY(-50%)",
         }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2a2a2a'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1a1a1a'}
+        aria-label={isPanelOpen ? "Collapse panel" : "Expand panel"}
       >
-        {isPanelOpen ? <ChevronRightIcon style={{ width: 16, height: 16 }} /> : <ChevronLeftIcon style={{ width: 16, height: 16 }} />}
+        {isPanelOpen ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </button>
+      {isMobile && (
+        <div className="ie-bottom-bar">
+          <button onClick={handleSave} className="ie-btn ie-btn--primary">
+            Save
+          </button>
+          <button onClick={handleReset} className="ie-btn ie-btn--ghost">
+            Reset
+          </button>
+          <div style={{ flex: 1 }} />
+          <button
+            onClick={undo}
+            disabled={historyIndex <= 0}
+            className="ie-btn ie-btn--ghost ie-btn--icon"
+            title="Undo"
+            aria-label="Undo"
+          >
+            <Undo2 />
+          </button>
+          <button
+            onClick={redo}
+            disabled={historyIndex >= history.length - 1}
+            className="ie-btn ie-btn--ghost ie-btn--icon"
+            title="Redo"
+            aria-label="Redo"
+          >
+            <Redo2 />
+          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, overflowX: "auto" }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`ie-tab ${activeTab === tab.id ? "ie-tab--active" : "ie-tab--idle"}`}
+                aria-pressed={activeTab === tab.id}
+              >
+                <tab.icon size={14} />
+                {!isMobile && <span style={{ marginLeft: 6 }}>{tab.label}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>,
-    document.body
-  );
-};
-
-interface SliderControlProps {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  onChangeEnd: () => void;
-  min: number;
-  max: number;
-  step?: number;
-  unit: string;
+    document.body,
+  )
 }
 
-const SliderControl: React.FC<SliderControlProps> = ({
-  icon,
-  label,
-  value,
-  onChange,
-  onChangeEnd,
-  min,
-  max,
-  step = 1,
-  unit
-}) => {
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-        <label style={{ fontSize: '12px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px', color: '#e5e5e5' }}>
-          {icon}
-          {label}
-        </label>
-        <span style={{ fontSize: '12px', color: '#a3a3a3' }}>{Math.round(value * 10) / 10}{unit}</span>
-      </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        onMouseUp={onChangeEnd}
-        onTouchEnd={onChangeEnd}
-        style={{
-          width: '100%',
-          height: '6px',
-          backgroundColor: '#2a2a2a',
-          borderRadius: '8px',
-          outline: 'none',
-          cursor: 'pointer',
-          WebkitAppearance: 'none',
-          MozAppearance: 'none',
-          appearance: 'none'
-        }}
-      />
-      <style>{`
-        input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 14px;
-          height: 14px;
-          border-radius: 50%;
-          background: #3b82f6;
-          cursor: pointer;
-        }
-        input[type="range"]::-moz-range-thumb {
-          width: 14px;
-          height: 14px;
-          border-radius: 50%;
-          background: #3b82f6;
-          cursor: pointer;
-          border: none;
-        }
-      `}</style>
-    </div>
-  );
-};
-
-export default Imageeditor;
+export default ImageEditor
