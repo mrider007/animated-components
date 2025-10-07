@@ -153,7 +153,7 @@ type ImageEditorProps = {
   className?: string
 }
 
-const ImageEditor = ({ imageFile, onSave, onCancel, className = "" }: ImageEditorProps) => {
+const Imageeditor = ({ imageFile, onSave, onCancel, className = "" }: ImageEditorProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [activeTab, setActiveTab] = useState<"crop" | "adjust" | "filters" | "transform">("crop")
   const [workingImage, setWorkingImage] = useState<HTMLImageElement | null>(null)
@@ -1373,4 +1373,4 @@ const ImageEditor = ({ imageFile, onSave, onCancel, className = "" }: ImageEdito
   )
 }
 
-export default ImageEditor
+export default Imageeditor
