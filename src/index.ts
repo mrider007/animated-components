@@ -50,6 +50,7 @@ import { Tooltip } from './components/tooltip/Tooltip';
 import { Heading } from './components/typography/Heading';
 import { Text } from './components/typography/Text';
 import Imageeditor from './components/image/Imageditor';
+import ImageEditor from './components/image/ImageEditor';
 
 import { motionVariants } from './utils/motionVariants';
 
@@ -105,5 +106,6 @@ export {
   Heading,
   Text,
   Imageeditor,
+  ImageEditor,
   motionVariants,
 };
