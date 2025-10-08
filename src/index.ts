@@ -51,6 +51,7 @@ import { Heading } from './components/typography/Heading';
 import { Text } from './components/typography/Text';
 import Imageeditor from './components/image/Imageditor';
 import ImageEditor from './components/image/ImageEditor';
+import { Carousel } from './components/image/Carousel';
 
 import { motionVariants } from './utils/motionVariants';
 
@@ -107,5 +108,6 @@ export {
   Text,
   Imageeditor,
   ImageEditor,
+  Carousel,
   motionVariants,
 };
