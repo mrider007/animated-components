@@ -3,7 +3,6 @@ import { motion, AnimatePresence, PanInfo, Variants, Transition } from 'framer-m
 import { BaseProps } from '../../../types/common';
 import { motionVariants } from '../../utils/motionVariants';
 
-
 type NavigationStyle = 'arrows' | 'dots' | 'thumbnails' | 'both' | 'arrows-dots' | 'none';
 type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' | string;
 type Direction = 'horizontal' | 'vertical';
@@ -96,7 +95,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   baseClassName,
   unstyled = false,
   className = '',
-  lazyLoad = true,
+  lazyLoad = false,
   preloadImages = 2,
   customIcons,
   thumbnailSize = 'md',
@@ -113,6 +112,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   const [dir, setDir] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([initialSlide]));
   const containerRef = useRef<HTMLDivElement>(null);
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
   const defaultSizeClasses: Record<Size, string> = {
     xs: 'max-w-sm h-48',
@@ -161,17 +161,27 @@ export const Carousel: React.FC<CarouselProps> = ({
       }
 
       setLoadedImages(imagesToLoad);
+    } else {
+      setLoadedImages(new Set(images.map((_, i) => i)));
     }
-  }, [currentIndex, lazyLoad, preloadImages, images.length, loop, loadedImages]);
+  }, [currentIndex, lazyLoad, preloadImages, images.length, loop]);
 
   useEffect(() => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+    }
+
     if (autoPlay > 0 && isPlaying) {
-      const interval = setInterval(() => {
+      autoPlayRef.current = setInterval(() => {
         paginate(autoPlayDirection === 'forward' ? 1 : -1);
       }, autoPlay);
-
-      return () => clearInterval(interval);
     }
+
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+      }
+    };
   }, [autoPlay, isPlaying, paginate, autoPlayDirection]);
 
   useEffect(() => {
