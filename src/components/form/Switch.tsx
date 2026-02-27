@@ -1,16 +1,33 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import { motionVariants } from '../../utils/motionVariants'; 
+import { motionVariants } from '../../utils/motionVariants';
 import { BaseProps } from '../../../types/common';
 
 type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
 
-interface SwitchProps extends BaseProps {
+export interface SwitchProps extends BaseProps {
+  /** Whether the switch is on */
   checked: boolean;
+  /** Change handler */
   onChange: (checked: boolean) => void;
+  /** Label text */
   label?: string;
+  /** Color theme */
   color?: Color;
-  motionVariant?: keyof typeof motionVariants; 
+  /** Predefined motion variant */
+  motionVariant?: keyof typeof motionVariants;
+  /** Whether the switch is disabled */
+  disabled?: boolean;
+  /** Switch id */
+  id?: string;
+  /** Switch name */
+  name?: string;
+  /** Size of the switch */
+  size?: 'sm' | 'md' | 'lg';
+  /** Whether to animate on mount */
+  useAnimation?: boolean;
 }
 
 export const Switch: React.FC<SwitchProps> = ({
@@ -19,44 +36,59 @@ export const Switch: React.FC<SwitchProps> = ({
   onChange,
   label,
   color = 'primary',
-  motionVariant = 'fadeIn', // Default motion variant
+  motionVariant = 'fadeIn',
+  disabled = false,
+  id,
+  name,
+  size = 'md',
+  useAnimation = true,
   ...rest
 }) => {
   const baseClasses = 'inline-flex items-center cursor-pointer';
 
   const colorClasses = {
-    primary: 'bg-blue-600',
-    secondary: 'bg-gray-600',
-    success: 'bg-green-600',
-    danger: 'bg-red-600',
-    warning: 'bg-yellow-500',
-    info: 'bg-blue-400',
+    primary: 'bg-blue-600 focus-within:ring-blue-500/30',
+    secondary: 'bg-gray-700 focus-within:ring-gray-500/30',
+    success: 'bg-green-500 focus-within:ring-green-500/30',
+    danger: 'bg-red-500 focus-within:ring-red-500/30',
+    warning: 'bg-yellow-400 focus-within:ring-yellow-400/30',
+    info: 'bg-cyan-500 focus-within:ring-cyan-500/30',
   };
+
+  const sizeConfig = {
+    sm: { track: 'w-8 h-4', thumb: 'w-3 h-3', translate: 'translate-x-4' },
+    md: { track: 'w-10 h-6 pl-[2px]', thumb: 'w-4 h-4', translate: 'translate-x-[18px]' },
+    lg: { track: 'w-14 h-8 pl-[3px]', thumb: 'w-6 h-6', translate: 'translate-x-[26px]' },
+  };
+
+  const { track, thumb, translate } = sizeConfig[size];
 
   return (
     <motion.label
-      className={`${baseClasses} ${className}`}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      variants={motionVariants[motionVariant]} // Applying the motion variant from utils
-      transition={{ duration: 0.3 }}
+      htmlFor={id}
+      className={`${baseClasses} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      variants={motionVariants[motionVariant]}
+      initial={useAnimation ? "hidden" : false}
+      animate={useAnimation ? "visible" : false}
     >
-      <div className="relative">
+      <div className={`relative flex items-center rounded-full transition-all duration-300 ease-in-out focus-within:ring-4 focus-within:ring-offset-1 ${track} ${checked ? colorClasses[color] : 'bg-gray-300'}`}>
         <input
-        {...rest}
+          id={id}
+          name={name}
           type="checkbox"
-          className="sr-only"
+          className="peer sr-only"
           checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e) => !disabled && onChange(e.target.checked)}
+          disabled={disabled}
+          role="switch"
+          aria-checked={checked}
+          {...rest}
         />
         <div
-          className={`w-10 h-6 bg-gray-200 rounded-full shadow-inner ${checked ? colorClasses[color] : ''}`}
-        ></div>
-        <div
-          className={`absolute w-4 h-4 bg-white rounded-full shadow inset-y-1 left-1 transition-transform duration-200 ease-in-out ${checked ? 'transform translate-x-4' : ''}`}
-        ></div>
+          className={`absolute ${thumb} bg-white rounded-full shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${checked ? `transform ${translate}` : 'translate-x-1'}`}
+        />
       </div>
-      {label && <span className="ml-3 text-sm font-medium text-gray-900">{label}</span>}
+      {label && <span className="ml-3 text-sm font-medium text-gray-800">{label}</span>}
     </motion.label>
   );
 };

@@ -1,9 +1,10 @@
 import React from 'react';
-import { BaseProps, WithChildren } from '../../../types/common';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { motionVariants } from '../../utils/motionVariants';
+import { BaseProps } from '../../../types/common';
 
-interface FlexProps extends BaseProps, WithChildren {
+export interface FlexProps extends BaseProps, Omit<HTMLMotionProps<"div">, "children" | "direction"> {
+  children?: React.ReactNode;
   direction?: 'row' | 'col';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
   align?: 'start' | 'center' | 'end' | 'stretch';
@@ -25,21 +26,28 @@ export const Flex: React.FC<FlexProps> = ({
   loop = false,
   ...rest
 }) => {
-  const flexClass = `
-    flex
-    ${direction === 'col' ? 'flex-col' : 'flex-row'}
-    ${`justify-${justify}`}
-    ${`items-${align}`}
-    ${wrap ? 'flex-wrap' : 'flex-nowrap'}
-  `;
+  const flexClass = [
+    'flex',
+    direction === 'col' ? 'flex-col' : 'flex-row',
+    `justify-${justify}`,
+    `items-${align}`,
+    wrap ? 'flex-wrap' : 'flex-nowrap'
+  ].filter(Boolean).join(' ');
+
   const transition = {
     duration,
-    ...(loop ? { repeat: Infinity, repeatType: 'loop' } : {}),
+    ...(loop ? { repeat: Infinity, repeatType: 'loop' as const } : {}),
   };
+
   return (
-    <motion.div variants={motionVariants[motionVariant]} {...rest} initial="hidden"
+    <motion.div
+      {...rest}
+      variants={motionVariants[motionVariant]}
+      initial="hidden"
       animate="visible"
-      transition={{ transition }} className={`${flexClass} ${className}`}>
+      transition={transition}
+      className={`${flexClass} ${className}`}
+    >
       {children}
     </motion.div>
   );

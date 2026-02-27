@@ -1,30 +1,22 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence, MotionProps } from 'framer-motion';
-import { BaseProps, WithChildren } from '../../../types/common';
+import { motion, AnimatePresence, HTMLMotionProps, MotionProps } from 'framer-motion';
+import { BaseProps, RadiusProps, VariantProps } from '../../../types/common';
 
-/**
- * Fully customizable, responsive Navbar with mobile menu.
- * All styling and behavior can be overridden via props.
- */
-interface NavbarProps extends BaseProps, WithChildren {
+export type NavbarVariant = 'flat' | 'solid' | 'glass' | 'elevated' | string;
+
+export interface NavbarProps extends BaseProps, RadiusProps, Omit<HTMLMotionProps<"nav">, "children" | "className" | "variant"> {
   /** Brand/logo element */
   brand?: React.ReactNode;
-  /** Tailwind class for navbar background */
-  bgColorClass?: string;
-  /** Tailwind class for navbar text */
-  textColorClass?: string;
-  /** Tailwind class for hover state on menu items */
-  hoverTextColorClass?: string;
-  /** Tailwind class for navbar shadow */
-  shadowClass?: string;
+  /** Variant of the navbar */
+  variant?: NavbarVariant;
+  /** Whether the navbar should stick to the top */
+  sticky?: boolean;
   /** Container max-width wrapper class */
   containerClassName?: string;
   /** Class for desktop menu wrapper */
   desktopMenuClassName?: string;
   /** Class for mobile menu wrapper */
   mobileMenuWrapperClassName?: string;
-  /** Class for individual mobile menu item */
-  mobileMenuItemClassName?: string;
   /** Custom hamburger icon */
   menuIcon?: React.ReactNode;
   /** Custom close icon */
@@ -33,56 +25,68 @@ interface NavbarProps extends BaseProps, WithChildren {
   navMotion?: Partial<MotionProps>;
   /** Framer Motion props for mobile menu */
   mobileMotion?: Partial<MotionProps>;
-  duration?: number;
-  loop?: boolean;
+  /** Optional children */
+  children?: React.ReactNode;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   brand,
   children,
   className = '',
-  bgColorClass = 'bg-white',
-  textColorClass = 'text-gray-800',
-  hoverTextColorClass = 'hover:text-gray-600',
-  shadowClass = 'shadow',
+  variant = 'flat',
+  radius = 'none',
+  sticky = false,
   containerClassName = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
-  desktopMenuClassName = 'hidden md:flex items-center space-x-4',
-  mobileMenuWrapperClassName = 'md:hidden bg-white shadow-md',
-  mobileMenuItemClassName = 'block px-4 py-2',
+  desktopMenuClassName = 'hidden md:flex items-center space-x-2 md:space-x-4',
+  mobileMenuWrapperClassName = 'md:hidden shadow-lg border-t border-gray-100',
   menuIcon,
   closeIcon,
   navMotion,
   mobileMotion,
-  duration = 0.3,
-  loop = false,
   ...rest
 }) => {
   const [isMobileOpen, setMobileOpen] = useState(false);
   const toggleMobile = () => setMobileOpen(prev => !prev);
-  const transition = {
-    duration,
-    ...(loop ? { repeat: Infinity, repeatType: 'loop' } : {}),
+
+  const getRadiusClasses = () => {
+    switch (radius) {
+      case 'none': return 'rounded-none';
+      case 'sm': return 'rounded-sm';
+      case 'md': return 'rounded-md';
+      case 'lg': return 'rounded-lg';
+      case 'xl': return 'rounded-xl';
+      case '2xl': return 'rounded-2xl';
+      case 'full': return 'rounded-full';
+      default: return `rounded-${radius}`;
+    }
   };
 
+  const variantStyles: Record<string, { nav: string; mobileBg: string; text: string; toggleRow: string }> = {
+    flat: { nav: 'bg-white border-b border-gray-100', mobileBg: 'bg-white', text: 'text-gray-800', toggleRow: 'text-gray-600 focus:ring-gray-400' },
+    solid: { nav: 'bg-gray-900', mobileBg: 'bg-gray-900 border-gray-800', text: 'text-white', toggleRow: 'text-gray-300 focus:ring-gray-600' },
+    glass: { nav: 'backdrop-blur-md bg-white/70 border-b border-white/20', mobileBg: 'backdrop-blur-lg bg-white/90', text: 'text-gray-800', toggleRow: 'text-gray-600 focus:ring-gray-400' },
+    elevated: { nav: 'bg-white shadow-md shadow-gray-200/50', mobileBg: 'bg-white', text: 'text-gray-800', toggleRow: 'text-gray-600 focus:ring-gray-400' },
+  };
+
+  const theme = variantStyles[variant] || variantStyles.flat;
+
   return (
-    <>
+    <div className={`w-full ${sticky ? 'sticky top-0 z-50' : 'relative z-40'}`}>
       <motion.nav
-        className={`flex items-center justify-between ${bgColorClass} ${shadowClass} ${className}`}
-        initial="hidden"
-        animate="visible"
-        transition={{ transition }}
+        className={`w-full flex flex-col ${theme.nav} ${getRadiusClasses()} ${className}`}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         {...navMotion}
         {...rest}
       >
-        <div className={containerClassName + ' flex items-center justify-between h-16'}>
-          <div className="flex-shrink-0">
+        <div className={`${containerClassName} flex items-center justify-between h-16 w-full`}>
+          <div className="flex-shrink-0 flex items-center">
             {brand}
           </div>
 
-          <div className={desktopMenuClassName + ` ${textColorClass}`}>
-            {React.Children.map(children, child => (
-              <div className={`${hoverTextColorClass}`}>{child}</div>
-            ))}
+          <div className={`${desktopMenuClassName} ${theme.text}`}>
+            {children}
           </div>
 
           {/* Mobile Toggle */}
@@ -90,19 +94,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={toggleMobile}
               aria-label={isMobileOpen ? 'Close menu' : 'Open menu'}
-              className={`${textColorClass} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400`}
+              className={`p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${theme.toggleRow}`}
             >
-              {isMobileOpen
-                ? closeIcon || (
+              {isMobileOpen ? (
+                closeIcon || (
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 )
-                : menuIcon || (
+              ) : (
+                menuIcon || (
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
-                )}
+                )
+              )}
             </button>
           </div>
         </div>
@@ -111,21 +117,19 @@ export const Navbar: React.FC<NavbarProps> = ({
       <AnimatePresence>
         {isMobileOpen && (
           <motion.div
-            className={mobileMenuWrapperClassName + ` ${textColorClass}`}
-            initial={{ height: 0, opacity: 0 }}
+            className={`absolute left-0 right-0 w-full overflow-hidden ${mobileMenuWrapperClassName} ${theme.mobileBg} ${theme.text} z-40`}
+            initial={{ height: 0, opacity: 0, originY: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
             {...mobileMotion}
           >
-            <div className="space-y-2 py-2">
-              {React.Children.map(children, child => (
-                <div className={`${mobileMenuItemClassName} ${hoverTextColorClass}`}>{child}</div>
-              ))}
+            <div className={`px-4 pt-2 pb-4 space-y-1 flex flex-col ${getRadiusClasses()}`}>
+              {children}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 };

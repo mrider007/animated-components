@@ -3,7 +3,7 @@ import { BaseProps, WithChildren } from '../../../types/common';
 
 export const ModalBody: React.FC<BaseProps & WithChildren> = ({ children, className = '' }) => {
   return (
-    <div className={`px-4 pt-5 pb-4 sm:p-6 sm:pb-4 ${className}`}>
+    <div className={`px-6 py-5 text-gray-600 ${className}`}>
       {children}
     </div>
   );

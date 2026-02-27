@@ -23,7 +23,7 @@ interface CustomIcons {
   pauseIcon?: React.ReactNode;
 }
 
-interface CarouselProps extends BaseProps {
+export interface CarouselProps extends BaseProps {
   images: CarouselImage[];
   motionVariant?: MotionVariantKey;
   navigationStyle?: NavigationStyle;
@@ -57,8 +57,6 @@ interface CarouselProps extends BaseProps {
   initialSlide?: number;
   baseClassName?: string;
   unstyled?: boolean;
-  lazyLoad?: boolean;
-  preloadImages?: number;
   customIcons?: CustomIcons;
   thumbnailSize?: 'sm' | 'md' | 'lg';
   arrowPosition?: 'inside' | 'outside';
@@ -79,7 +77,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   showPlayPause = true,
   loop = true,
   enableSwipe = true,
-  swipeThreshold = 10000,
+  swipeThreshold = 50,
   direction = 'horizontal',
   motionVariant = 'fadeIn',
   customVariants,
@@ -95,8 +93,6 @@ export const Carousel: React.FC<CarouselProps> = ({
   baseClassName,
   unstyled = false,
   className = '',
-  lazyLoad = false,
-  preloadImages = 2,
   customIcons,
   thumbnailSize = 'md',
   arrowPosition = 'inside',
@@ -110,7 +106,6 @@ export const Carousel: React.FC<CarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(initialSlide);
   const [isPlaying, setIsPlaying] = useState(autoPlay > 0);
   const [dir, setDir] = useState(0);
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([initialSlide]));
   const containerRef = useRef<HTMLDivElement>(null);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -125,7 +120,30 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const sizeClass = unstyled ? '' : (customSizeClasses?.[size] || defaultSizeClasses[size] || size);
   const baseClasses = unstyled ? '' : (baseClassName || 'relative mx-auto overflow-hidden rounded-xl bg-gray-900');
-  const variants = customVariants || motionVariants[motionVariant || 'fadeIn'];
+
+  // Enhanced carousel-specific animation variants
+  const carouselVariants: Variants = customVariants || {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0,
+      scale: 0.8,
+      rotateY: direction > 0 ? 45 : -45,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      rotateY: 0,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+      scale: 0.8,
+      rotateY: direction < 0 ? 45 : -45,
+    }),
+  };
 
   const paginate = useCallback((newDirection: number) => {
     const nextIndex = currentIndex + newDirection;
@@ -147,24 +165,6 @@ export const Carousel: React.FC<CarouselProps> = ({
     setDir(newDirection);
     setCurrentIndex(index);
   }, [currentIndex]);
-
-  useEffect(() => {
-    if (lazyLoad) {
-      const imagesToLoad = new Set(loadedImages);
-      imagesToLoad.add(currentIndex);
-
-      for (let i = 1; i <= preloadImages; i++) {
-        const nextIndex = (currentIndex + i) % images.length;
-        const prevIndex = (currentIndex - i + images.length) % images.length;
-        imagesToLoad.add(nextIndex);
-        if (loop) imagesToLoad.add(prevIndex);
-      }
-
-      setLoadedImages(imagesToLoad);
-    } else {
-      setLoadedImages(new Set(images.map((_, i) => i)));
-    }
-  }, [currentIndex, lazyLoad, preloadImages, images.length, loop]);
 
   useEffect(() => {
     if (autoPlayRef.current) {
@@ -294,7 +294,7 @@ export const Carousel: React.FC<CarouselProps> = ({
           <motion.div
             key={currentIndex}
             custom={dir}
-            variants={variants}
+            variants={carouselVariants}
             initial="enter"
             animate="center"
             exit="exit"
@@ -305,45 +305,39 @@ export const Carousel: React.FC<CarouselProps> = ({
             onDragEnd={handleDragEnd}
             className={`absolute inset-0 ${customClasses.image || ''}`}
           >
-            {lazyLoad ? (
-              loadedImages.has(currentIndex) ? (
-                <img
-                  src={images[currentIndex].src}
-                  alt={images[currentIndex].alt}
-                  className="w-full h-full object-cover select-none"
-                  loading="lazy"
-                  draggable={false}
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-800 animate-pulse flex items-center justify-center">
-                  <div className="text-gray-400">Loading...</div>
-                </div>
-              )
-            ) : (
-              <img
-                src={images[currentIndex].src}
-                alt={images[currentIndex].alt}
-                className="w-full h-full object-cover select-none"
-                draggable={false}
-              />
-            )}
+            <img
+              src={images[currentIndex].src}
+              alt={images[currentIndex].alt}
+              className="w-full h-full object-cover select-none"
+              draggable={false}
+            />
 
             {showOverlay && (images[currentIndex].title || images[currentIndex].description) && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
                 className={`absolute ${overlayPositionClasses[overlayPosition]} left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 ${customClasses.overlay || ''}`}
               >
                 {images[currentIndex].title && (
-                  <h3 className="text-white text-2xl font-bold mb-2">
+                  <motion.h3
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    className="text-white text-2xl font-bold mb-2"
+                  >
                     {images[currentIndex].title}
-                  </h3>
+                  </motion.h3>
                 )}
                 {images[currentIndex].description && (
-                  <p className="text-white/90 text-sm">
+                  <motion.p
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4, duration: 0.4 }}
+                    className="text-white/90 text-sm"
+                  >
                     {images[currentIndex].description}
-                  </p>
+                  </motion.p>
                 )}
               </motion.div>
             )}
@@ -353,50 +347,57 @@ export const Carousel: React.FC<CarouselProps> = ({
 
       {showArrows && (
         <div className={customClasses.navigation || ''}>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => paginate(-1)}
             disabled={!loop && currentIndex === 0}
-            className={`absolute ${arrowPosition === 'outside' ? '-left-12' : 'left-4'} top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-3 text-gray-900 hover:bg-white hover:scale-110 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg ${customClasses.arrows || ''}`}
+            className={`absolute ${arrowPosition === 'outside' ? '-left-12' : 'left-4'} top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-3 text-gray-900 hover:bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg ${customClasses.arrows || ''}`}
             aria-label="Previous slide"
           >
             {customIcons?.prevIcon || <DefaultPrevIcon />}
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => paginate(1)}
             disabled={!loop && currentIndex === images.length - 1}
-            className={`absolute ${arrowPosition === 'outside' ? '-right-12' : 'right-4'} top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-3 text-gray-900 hover:bg-white hover:scale-110 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg ${customClasses.arrows || ''}`}
+            className={`absolute ${arrowPosition === 'outside' ? '-right-12' : 'right-4'} top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-3 text-gray-900 hover:bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg ${customClasses.arrows || ''}`}
             aria-label="Next slide"
           >
             {customIcons?.nextIcon || <DefaultNextIcon />}
-          </button>
+          </motion.button>
         </div>
       )}
 
       {autoPlay > 0 && showPlayPause && (
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setIsPlaying(!isPlaying)}
-          className={`absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 text-gray-900 hover:bg-white hover:scale-110 transition-all shadow-lg ${customClasses.playPause || ''}`}
+          className={`absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 text-gray-900 hover:bg-white transition-all shadow-lg ${customClasses.playPause || ''}`}
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
           {isPlaying
             ? (customIcons?.pauseIcon || <DefaultPauseIcon />)
             : (customIcons?.playIcon || <DefaultPlayIcon />)
           }
-        </button>
+        </motion.button>
       )}
 
       {showDots && (
         <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2 ${customClasses.dots || ''}`}>
           {images.map((_, index) => (
-            <button
+            <motion.button
               key={index}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => goToSlide(index)}
-              className={`${dotStyleClasses[dotStyle]} transition-all ${
-                index === currentIndex
-                  ? 'bg-white scale-110'
-                  : 'bg-white/50 hover:bg-white/75'
-              }`}
+              className={`${dotStyleClasses[dotStyle]} transition-all ${index === currentIndex
+                ? 'bg-white scale-110'
+                : 'bg-white/50 hover:bg-white/75'
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
@@ -404,34 +405,44 @@ export const Carousel: React.FC<CarouselProps> = ({
       )}
 
       {showThumbnails && (
-        <div className={`absolute bottom-0 left-0 right-0 z-10 bg-black/80 backdrop-blur-sm p-2 ${customClasses.thumbnails || ''}`}>
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className={`absolute bottom-0 left-0 right-0 z-10 bg-black/80 backdrop-blur-sm p-2 ${customClasses.thumbnails || ''}`}
+        >
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
             {images.map((image, index) => (
-              <button
+              <motion.button
                 key={index}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => goToSlide(index)}
-                className={`flex-shrink-0 ${thumbnailSizeClasses[thumbnailSize]} rounded overflow-hidden transition-all ${
-                  index === currentIndex
-                    ? 'ring-2 ring-white scale-110'
-                    : 'opacity-60 hover:opacity-100'
-                }`}
+                className={`flex-shrink-0 ${thumbnailSizeClasses[thumbnailSize]} rounded overflow-hidden transition-all ${index === currentIndex
+                  ? 'ring-2 ring-white scale-110'
+                  : 'opacity-60 hover:opacity-100'
+                  }`}
                 aria-label={`Go to slide ${index + 1}`}
               >
                 <img
                   src={image.thumbnail || image.src}
                   alt={image.alt}
                   className="w-full h-full object-cover"
-                  loading="lazy"
                 />
-              </button>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <div className="absolute bottom-4 right-4 z-10 text-white/80 text-sm bg-black/50 px-2 py-1 rounded">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="absolute bottom-4 right-4 z-10 text-white/80 text-sm bg-black/50 px-2 py-1 rounded backdrop-blur-sm"
+      >
         {currentIndex + 1} / {images.length}
-      </div>
+      </motion.div>
     </div>
   );
 };

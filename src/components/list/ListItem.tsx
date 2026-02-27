@@ -1,37 +1,27 @@
 import React from 'react';
-import { motion} from 'framer-motion';
-import { BaseProps, WithChildren } from '../../../types/common';
+import { motion, HTMLMotionProps } from 'framer-motion';
+import { BaseProps } from '../../../types/common';
 import { motionVariants } from '../../utils/motionVariants';
-
 
 type MotionVariantKey = keyof typeof motionVariants;
 
-interface ListItemProps extends BaseProps, WithChildren {
+export interface ListItemProps extends BaseProps, Omit<HTMLMotionProps<"li">, "children"> {
+  children?: React.ReactNode;
   motionVariant?: MotionVariantKey;
-  duration?: number;
-  loop?: boolean;
 }
 
 export const ListItem: React.FC<ListItemProps> = ({
   children,
   className = '',
-  motionVariant = 'fadeIn', 
-  duration = 0.3,        
-  loop = false,        
+  motionVariant = 'fadeIn',
   ...rest
 }) => {
-  const transition = {
-    duration,
-    ...(loop ? { repeat: Infinity, repeatType: 'loop' } : {}),
-  };
-
   return (
     <motion.li
-      className={className}
+      className={`px-4 py-3 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50/80 cursor-default ${className}`}
       initial="hidden"
       animate="visible"
       variants={motionVariants[motionVariant]}
-      transition={{transition}}
       {...rest}
     >
       {children}

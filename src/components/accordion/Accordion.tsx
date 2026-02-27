@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { motionVariants } from '../../utils/motionVariants';
-import { BaseProps, WithChildren } from '../../../types/common';
+import { BaseProps, RadiusProps, Radius, VariantProps } from '../../../types/common';
 
-type Color = 'primary' | 'secondary' | 'danger' | 'success' | 'info' | 'warning';
-type Variant = 'solid' | 'outline' | 'ghost';
+type Color = 'primary' | 'secondary' | 'danger' | 'success' | 'info' | 'warning' | string;
+type AccordionVariant = 'solid' | 'outline' | 'ghost' | 'glass' | 'elevated' | string;
 
 interface AccordionItem {
   title: string;
@@ -14,10 +14,10 @@ interface AccordionItem {
   disabled?: boolean;
 }
 
-interface AccordionProps extends BaseProps, WithChildren {
+interface AccordionProps extends BaseProps, RadiusProps {
   items: AccordionItem[];
   color?: Color;
-  variant?: Variant;
+  variant?: AccordionVariant;
   motionVariant?: keyof typeof motionVariants;
   allowMultipleOpen?: boolean;
   defaultOpenIndex?: number[];
@@ -32,7 +32,8 @@ export const Accordion: React.FC<AccordionProps> = ({
   className = '',
   items,
   color = 'primary',
-  variant = 'solid',
+  variant = 'elevated',
+  radius = 'lg',
   motionVariant = 'fadeIn',
   allowMultipleOpen = false,
   defaultOpenIndex = [],
@@ -57,51 +58,76 @@ export const Accordion: React.FC<AccordionProps> = ({
 
   const isOpen = (index: number) => openIndexes.includes(index);
 
-  const colorStyles = {
+  const colorStyles: Record<string, Record<string, string>> = {
     primary: {
-      solid: 'bg-blue-100 border border-blue-400 text-blue-900 hover:bg-blue-200 focus:ring-blue-500',
-      outline: 'border border-blue-400 text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
-      ghost: 'text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
+      solid: 'bg-blue-50 border border-blue-200 text-blue-900',
+      outline: 'border border-blue-300 text-blue-700 bg-transparent',
+      ghost: 'text-blue-700 bg-transparent hover:bg-blue-50/50',
+      glass: 'bg-blue-50/40 backdrop-blur-md border border-blue-200/50 text-blue-900',
+      elevated: 'bg-white border border-gray-100 shadow-md shadow-gray-200/50 text-gray-800',
     },
     secondary: {
-      solid: 'bg-gray-100 border border-gray-400 text-gray-900 hover:bg-gray-200 focus:ring-gray-500',
-      outline: 'border border-gray-400 text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
-      ghost: 'text-gray-600 hover:bg-gray-50 focus:ring-gray-500',
+      solid: 'bg-gray-50 border border-gray-200 text-gray-900',
+      outline: 'border border-gray-300 text-gray-700 bg-transparent',
+      ghost: 'text-gray-700 bg-transparent hover:bg-gray-50/50',
+      glass: 'bg-gray-50/40 backdrop-blur-md border border-gray-200/50 text-gray-900',
+      elevated: 'bg-white border border-gray-100 shadow-md shadow-gray-200/50 text-gray-800',
     },
     danger: {
-      solid: 'bg-red-100 border border-red-400 text-red-900 hover:bg-red-200 focus:ring-red-500',
-      outline: 'border border-red-400 text-red-600 hover:bg-red-50 focus:ring-red-500',
-      ghost: 'text-red-600 hover:bg-red-50 focus:ring-red-500',
+      solid: 'bg-red-50 border border-red-200 text-red-900',
+      outline: 'border border-red-300 text-red-700 bg-transparent',
+      ghost: 'text-red-700 bg-transparent hover:bg-red-50/50',
+      glass: 'bg-red-50/40 backdrop-blur-md border border-red-200/50 text-red-900',
+      elevated: 'bg-white border border-gray-100 shadow-md shadow-gray-200/50 text-gray-800',
     },
     success: {
-      solid: 'bg-green-100 border border-green-400 text-green-900 hover:bg-green-200 focus:ring-green-500',
-      outline: 'border border-green-400 text-green-600 hover:bg-green-50 focus:ring-green-500',
-      ghost: 'text-green-600 hover:bg-green-50 focus:ring-green-500',
+      solid: 'bg-green-50 border border-green-200 text-green-900',
+      outline: 'border border-green-300 text-green-700 bg-transparent',
+      ghost: 'text-green-700 bg-transparent hover:bg-green-50/50',
+      glass: 'bg-green-50/40 backdrop-blur-md border border-green-200/50 text-green-900',
+      elevated: 'bg-white border border-gray-100 shadow-md shadow-gray-200/50 text-gray-800',
     },
     info: {
-      solid: 'bg-blue-100 border border-blue-400 text-blue-900 hover:bg-blue-200 focus:ring-blue-400',
-      outline: 'border border-blue-400 text-blue-600 hover:bg-blue-50 focus:ring-blue-400',
-      ghost: 'text-blue-600 hover:bg-blue-50 focus:ring-blue-400',
+      solid: 'bg-cyan-50 border border-cyan-200 text-cyan-900',
+      outline: 'border border-cyan-300 text-cyan-700 bg-transparent',
+      ghost: 'text-cyan-700 bg-transparent hover:bg-cyan-50/50',
+      glass: 'bg-cyan-50/40 backdrop-blur-md border border-cyan-200/50 text-cyan-900',
+      elevated: 'bg-white border border-gray-100 shadow-md shadow-gray-200/50 text-gray-800',
     },
     warning: {
-      solid: 'bg-yellow-100 border border-yellow-400 text-yellow-900 hover:bg-yellow-200 focus:ring-yellow-500',
-      outline: 'border border-yellow-400 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
-      ghost: 'text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
+      solid: 'bg-yellow-50 border border-yellow-200 text-yellow-900',
+      outline: 'border border-yellow-300 text-yellow-700 bg-transparent',
+      ghost: 'text-yellow-700 bg-transparent hover:bg-yellow-50/50',
+      glass: 'bg-yellow-50/40 backdrop-blur-md border border-yellow-200/50 text-yellow-900',
+      elevated: 'bg-white border border-gray-100 shadow-md shadow-gray-200/50 text-gray-800',
     },
   };
 
-  const variantClasses = colorStyles[color][variant];
+  const getRadiusClasses = () => {
+    switch (radius) {
+      case 'none': return 'rounded-none';
+      case 'sm': return 'rounded-sm';
+      case 'md': return 'rounded-md';
+      case 'lg': return 'rounded-lg';
+      case 'xl': return 'rounded-xl';
+      case '2xl': return 'rounded-2xl';
+      case 'full': return 'rounded-3xl';
+      default: return `rounded-${radius}`;
+    }
+  };
+
+  const variantClasses = (colorStyles[color] || colorStyles.primary)[variant] || colorStyles.primary.elevated;
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`space-y-3 ${className}`}>
       {items.map((item, index) => (
         <div
           key={index}
-          className={`rounded-md focus:outline-none ${variantClasses} ${wrapperClassName}`}
+          className={`overflow-hidden transition-colors duration-300 ease-out focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-${color}-400/50 ${getRadiusClasses()} ${variantClasses} ${wrapperClassName}`}
         >
           <button
             disabled={item.disabled}
-            className={`w-full flex justify-between items-center px-4 py-2 text-left focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${variantClasses} ${headerClassName}`}
+            className={`w-full flex justify-between items-center px-5 py-3 text-left font-medium outline-none transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${isOpen(index) ? 'bg-black/5' : 'hover:bg-black/5'} ${headerClassName}`}
             onClick={() => !item.disabled && toggleItem(index)}
             aria-expanded={isOpen(index)}
           >
@@ -150,14 +176,16 @@ export const Accordion: React.FC<AccordionProps> = ({
           <AnimatePresence>
             {isOpen(index) && (
               <motion.div
-                variants={motionVariants[motionVariant]}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                className={`px-4 py-2 border-t ${contentClassName}`}
-              {...rest}
+                key="content"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+                className={`overflow-hidden`}
               >
-                {item.content}
+                <div className={`px-5 py-4 text-sm opacity-90 border-t border-black/5 ${contentClassName}`} {...rest}>
+                  {item.content}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

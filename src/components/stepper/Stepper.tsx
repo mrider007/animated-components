@@ -11,17 +11,23 @@ interface StepperProps extends BaseProps {
     inactive?: Color;
     connector?: Color;
   };
-  size?: 'sm' | 'md' | 'lg' | 'xs'|'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xs' | 'xl';
   orientation?: 'horizontal' | 'vertical';
 }
 
-const colorClasses: Record<Color, { active: string; inactive: string; connector: string }> = {
-  primary: { active: 'bg-blue-600 text-white', inactive: 'bg-blue-200 text-white', connector: 'bg-blue-200' },
-  secondary: { active: 'bg-gray-600 text-white', inactive: 'bg-gray-200 text-white', connector: 'bg-gray-200' },
-  success: { active: 'bg-green-600 text-white', inactive: 'bg-green-200 text-white', connector: 'bg-green-200' },
-  danger: { active: 'bg-red-600 text-white', inactive: 'bg-red-200 text-white', connector: 'bg-red-200' },
-  warning: { active: 'bg-yellow-500 text-black', inactive: 'bg-yellow-100 text-black', connector: 'bg-yellow-100' },
-  info: { active: 'bg-teal-500 text-white', inactive: 'bg-teal-200 text-white', connector: 'bg-teal-200' },
+interface StepperColorData {
+  active: string;
+  inactive: string;
+  connector: string;
+}
+
+const colorClasses: Record<Color | string, StepperColorData> = {
+  primary: { active: 'bg-blue-600 text-white shadow-md shadow-blue-500/20', inactive: 'bg-blue-50 text-blue-500 border border-blue-200', connector: 'bg-blue-200' },
+  secondary: { active: 'bg-gray-600 text-white shadow-md shadow-gray-500/20', inactive: 'bg-gray-50 text-gray-500 border border-gray-200', connector: 'bg-gray-200' },
+  success: { active: 'bg-green-600 text-white shadow-md shadow-green-500/20', inactive: 'bg-green-50 text-green-500 border border-green-200', connector: 'bg-green-200' },
+  danger: { active: 'bg-red-600 text-white shadow-md shadow-red-500/20', inactive: 'bg-red-50 text-red-500 border border-red-200', connector: 'bg-red-200' },
+  warning: { active: 'bg-yellow-500 text-white shadow-md shadow-yellow-500/20', inactive: 'bg-yellow-50 text-yellow-600 border border-yellow-200', connector: 'bg-yellow-200' },
+  info: { active: 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20', inactive: 'bg-cyan-50 text-cyan-600 border border-cyan-200', connector: 'bg-cyan-200' },
 };
 
 export const Stepper: React.FC<StepperProps> = ({
@@ -46,57 +52,63 @@ export const Stepper: React.FC<StepperProps> = ({
 
   const isVertical = orientation === 'vertical';
 
-  const activeColorClass = colorClasses[color.active || 'primary'].active;
-  const inactiveColorClass = colorClasses[color.inactive || 'primary'].inactive;
-  const connectorColorClass = colorClasses[color.connector || 'primary'].connector;
+  const activeColorTheme = colorClasses[color.active || 'primary']?.active || colorClasses.primary.active;
+  const inactiveColorTheme = colorClasses[color.inactive || 'primary']?.inactive || colorClasses.primary.inactive;
+  const connectorColorTheme = colorClasses[color.connector || 'primary']?.connector || colorClasses.primary.connector;
 
   return (
-    <div className={`flex ${isVertical ? 'flex-col' : 'items-center'} ${className}`}>
-      {steps.map((step, index) => (
-        <React.Fragment key={index}>
-          <div className={`flex ${isVertical ? 'flex-col items-center' : 'items-center'}`}>
-            {/* Step Indicator */}
-            <div
-              className={`flex items-center justify-center rounded-full ${
-                index < currentStep
-                  ? activeColorClass
-                  : index === currentStep
-                  ? `border-2 ${inactiveColorClass}`
-                  : inactiveColorClass
-              } ${sizeClasses[size]}`}
-            >
-              {index < currentStep ? (
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                index + 1
+    <div className={`flex w-full ${isVertical ? 'flex-col space-y-4' : 'flex-row justify-between items-center'} ${className}`}>
+      {steps.map((step, index) => {
+        const isCompleted = index < currentStep;
+        const isCurrent = index === currentStep;
+
+        return (
+          <React.Fragment key={index}>
+            <div className={`relative flex ${isVertical ? 'flex-row items-start' : 'flex-col items-center'} flex-1`}>
+
+              {/* Step Content Wrapper */}
+              <div className={`flex ${isVertical ? 'flex-col items-center mr-4' : 'flex-col items-center w-full'} z-10`}>
+                {/* Step Indicator */}
+                <div
+                  className={`flex items-center justify-center rounded-full transition-all duration-300 ${isCompleted || isCurrent ? activeColorTheme : inactiveColorTheme
+                    } ${isCurrent ? 'ring-4 ring-black/5 scale-110' : ''} ${sizeClasses[size]}`}
+                >
+                  {isCompleted ? (
+                    <svg className="w-5 h-5 animate-[bounce_0.3s_ease-out]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <span className="font-semibold">{index + 1}</span>
+                  )}
+                </div>
+
+                {/* Step Label (Horizontal mode) */}
+                {!isVertical && (
+                  <div className={`mt-3 text-sm font-medium text-center ${isCompleted || isCurrent ? 'text-gray-900' : 'text-gray-400'}`}>
+                    {step}
+                  </div>
+                )}
+              </div>
+
+              {/* Step Label (Vertical mode) */}
+              {isVertical && (
+                <div className={`mt-1 text-sm font-medium ${isCompleted || isCurrent ? 'text-gray-900' : 'text-gray-400'}`}>
+                  {step}
+                </div>
+              )}
+
+              {/* Connector */}
+              {index < steps.length - 1 && (
+                <div className={`absolute pointer-events-none ${isVertical
+                    ? 'w-[2px] h-[calc(100%+16px)] left-[calc(50%-1px)] top-[100%] origin-top'
+                    : 'h-[2px] w-[calc(100%-2rem)] left-[calc(50%+1rem)] top-[calc(1rem-1px)] origin-left'
+                  } ${isCompleted ? activeColorTheme.split(' ')[0] : connectorColorTheme} transition-colors duration-500`}
+                />
               )}
             </div>
-
-            {/* Connector */}
-            {index < steps.length - 1 && (
-              <div
-                className={`flex-1 ${isVertical ? 'w-1 h-8' : 'h-1 mx-2'} ${
-                  index < currentStep ? activeColorClass : connectorColorClass
-                }`}
-              ></div>
-            )}
-          </div>
-
-          <div
-            className={`${
-              isVertical ? 'text-center mt-2 mb-4' : 'hidden sm:block text-xs text-center mx-2'
-            }`}
-          >
-            {step}
-          </div>
-        </React.Fragment>
-      ))}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };

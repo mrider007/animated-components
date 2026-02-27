@@ -1,10 +1,14 @@
 {
   "name": "my-animated-components",
-  "version": "1.5.2",
+  "version": "2.0.0",
   "type": "module",
-  "description": "",
+  "description": "A comprehensive React component library with built-in Framer Motion animations, Tailwind CSS styling, and full TypeScript support.",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
     "build": "npx rollup -c"
   },
@@ -70,6 +74,12 @@
   ],
   "author": "",
   "license": "ISC",
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0",
+    "framer-motion": ">=10.0.0",
+    "tailwindcss": ">=3.0.0"
+  },
   "dependencies": {
     "rollup": "^4.12.0",
     "rollup-plugin-dts": "^6.1.1"

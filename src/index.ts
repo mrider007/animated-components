@@ -111,3 +111,26 @@ export {
   Carousel,
   motionVariants,
 };
+
+// Export all prop type interfaces for consumers
+export type { ButtonProps } from './components/buttons/Button';
+export type { InputProps } from './components/form/Input';
+export type { SelectProps, SelectOption } from './components/form/Select';
+export type { TextareaProps } from './components/form/Textarea';
+export type { CheckboxProps } from './components/form/Checkbox';
+export type { RadioProps } from './components/form/Radio';
+export type { SwitchProps } from './components/form/Switch';
+export type { FileUploadProps } from './components/form/FileUpload';
+export type { DropdownProps } from './components/dropdown/Dropdown';
+export type { DropdownItemProps } from './components/dropdown/DropdownItem';
+export type { ModalProps } from './components/modal/Modal';
+export type { TooltipProps } from './components/tooltip/Tooltip';
+export type { NavbarProps } from './components/navigation/Navbar';
+export type { NavItemProps } from './components/navigation/NavItem';
+export type { OffcanvasProps } from './components/offcanvas/Offcanvas';
+export type { ProgressBarProps } from './components/progress/ProgressBar';
+export type { TableProps } from './components/table/Table';
+export type { CarouselImage, CarouselProps } from './components/image/Carousel';
+
+// Export shared types
+export type { BaseProps, WithChildren, Color, Size, ColorProps, SizeProps } from '../types/common';

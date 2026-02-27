@@ -1,14 +1,26 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { BaseProps, WithChildren } from '../../../types/common';
+import { motion, HTMLMotionProps } from 'framer-motion';
+import { BaseProps } from '../../../types/common';
+import { motionVariants } from '../../utils/motionVariants';
 
-export const TableRow: React.FC<BaseProps & WithChildren> = ({ children, className = '' }) => {
+export interface TableRowProps extends BaseProps, Omit<HTMLMotionProps<"tr">, "children"> {
+  children?: React.ReactNode;
+  motionVariant?: keyof typeof motionVariants;
+  isHeader?: boolean;
+}
+
+export const TableRow: React.FC<TableRowProps> = ({
+  children,
+  className = '',
+  motionVariant = 'fadeIn',
+  isHeader = false,
+  ...rest
+}) => {
   return (
     <motion.tr
-      className={className}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
+      className={`${isHeader ? '' : 'group'} ${className}`}
+      variants={motionVariants[motionVariant]}
+      {...rest}
     >
       {children}
     </motion.tr>

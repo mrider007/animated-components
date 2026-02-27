@@ -1,16 +1,18 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { motionVariants } from '../../utils/motionVariants';
-import { BaseProps } from '../../../types/common';
+import { BaseProps, RadiusProps, VariantProps } from '../../../types/common';
 
-type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | string;
+type PaginationVariant = 'flat' | 'solid' | 'glass' | string;
 
-interface PaginationProps extends BaseProps {
+export interface PaginationProps extends BaseProps, RadiusProps, Omit<HTMLMotionProps<"nav">, "children" | "color" | "className" | "variant"> {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   color?: Color;
-  motionVariant?: keyof typeof motionVariants; // Predefined motion variant name
+  variant?: PaginationVariant;
+  motionVariant?: keyof typeof motionVariants;
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -19,77 +21,114 @@ export const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
   color = 'primary',
-  motionVariant = 'fadeIn', // Default motion variant
+  variant = 'flat',
+  radius = 'md',
+  motionVariant = 'fadeIn',
+  ...rest
 }) => {
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
-  const colorClasses = {
-    primary: 'text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700',
-    secondary: 'text-gray-600 bg-gray-50 hover:bg-gray-100 hover:text-gray-700',
-    success: 'text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700',
-    danger: 'text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700',
-    warning: 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100 hover:text-yellow-700',
-    info: 'text-blue-400 bg-blue-50 hover:bg-blue-100 hover:text-blue-500',
+  const getRadiusClasses = () => {
+    switch (radius) {
+      case 'none': return 'rounded-none';
+      case 'sm': return 'rounded-sm';
+      case 'md': return 'rounded-md';
+      case 'lg': return 'rounded-lg';
+      case 'xl': return 'rounded-xl';
+      case '2xl': return 'rounded-2xl';
+      case 'full': return 'rounded-full';
+      default: return `rounded-${radius}`;
+    }
+  };
+
+  const colorStyles: Record<string, Record<string, { active: string; default: string; disabled: string }>> = {
+    primary: {
+      flat: { active: 'bg-blue-100 text-blue-700 border-blue-200', default: 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200', disabled: 'bg-gray-50 text-gray-400 border-gray-200' },
+      solid: { active: 'bg-blue-600 text-white shadow-md shadow-blue-500/20 border-blue-600', default: 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200', disabled: 'bg-gray-50 text-gray-400 border-gray-200' },
+      glass: { active: 'bg-blue-500/80 backdrop-blur-md text-white border-blue-400/50', default: 'bg-white/50 backdrop-blur-sm text-gray-700 hover:bg-white/80 border-white/50', disabled: 'bg-gray-100/50 text-gray-400 border-white/30' },
+    },
+    // Adding secondary color as a fallback for the mapping below
+    secondary: {
+      flat: { active: 'bg-gray-200 text-gray-800 border-gray-300', default: 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200', disabled: 'bg-gray-50 text-gray-400 border-gray-200' },
+      solid: { active: 'bg-gray-800 text-white shadow-md shadow-gray-500/20 border-gray-800', default: 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200', disabled: 'bg-gray-50 text-gray-400 border-gray-200' },
+      glass: { active: 'bg-gray-700/80 backdrop-blur-md text-white border-gray-600/50', default: 'bg-white/50 backdrop-blur-sm text-gray-700 hover:bg-white/80 border-white/50', disabled: 'bg-gray-100/50 text-gray-400 border-white/30' },
+    }
+  };
+
+  const theme = (colorStyles[color] || colorStyles.primary)[variant] || colorStyles.primary.flat;
+
+  // Staggered children animation
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
   };
 
   return (
     <motion.nav
       className={`flex justify-center ${className}`}
-      initial={{ opacity: 0, y: -50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      variants={motionVariants[motionVariant]}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      {...rest}
     >
-      <ul className="flex items-center -space-x-px">
+      <ul className="flex items-center gap-1 sm:gap-2">
         {/* Previous Page Button */}
-        <li>
-          <motion.button
+        <motion.li variants={itemVariants}>
+          <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`block px-3 py-2 ml-0 leading-tight border border-gray-300 rounded-l-lg ${colorClasses[color]} ${currentPage === 1 && 'cursor-not-allowed opacity-50'}`}
-            variants={motionVariants[motionVariant]}
-            initial="hidden"
-            animate="visible"
+            aria-label="Previous page"
+            className={`flex items-center justify-center px-3 h-9 leading-tight border transition-colors 
+              ${getRadiusClasses()} 
+              ${currentPage === 1 ? `${theme.disabled} cursor-not-allowed` : theme.default}`}
           >
-            Previous
-          </motion.button>
-        </li>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </motion.li>
 
         {/* Page Numbers */}
-        {pageNumbers.map((number) => (
-          <li key={number}>
-            <motion.button
-              onClick={() => onPageChange(number)}
-              className={`px-3 py-2 leading-tight border border-gray-300 ${colorClasses[color]} ${
-                currentPage === number
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                  : 'bg-white hover:bg-gray-100'
-              }`}
-              variants={motionVariants[motionVariant]}
-              initial="hidden"
-              animate="visible"
-            >
-              {number}
-            </motion.button>
-          </li>
-        ))}
+        {pageNumbers.map((number) => {
+          const isActive = currentPage === number;
+          return (
+            <motion.li key={number} variants={itemVariants}>
+              <button
+                onClick={() => onPageChange(number)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`flex items-center justify-center w-9 h-9 text-sm font-medium border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-${color}-400/50
+                  ${getRadiusClasses()} 
+                  ${isActive ? theme.active : theme.default}`}
+              >
+                {number}
+              </button>
+            </motion.li>
+          );
+        })}
 
         {/* Next Page Button */}
-        <li>
-          <motion.button
+        <motion.li variants={itemVariants}>
+          <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`block px-3 py-2 leading-tight border border-gray-300 rounded-r-lg ${colorClasses[color]} ${currentPage === totalPages && 'cursor-not-allowed opacity-50'}`}
-            variants={motionVariants[motionVariant]}
-            initial="hidden"
-            animate="visible"
+            aria-label="Next page"
+            className={`flex items-center justify-center px-3 h-9 leading-tight border transition-colors 
+              ${getRadiusClasses()} 
+              ${currentPage === totalPages ? `${theme.disabled} cursor-not-allowed` : theme.default}`}
           >
-            Next
-          </motion.button>
-        </li>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </motion.li>
       </ul>
     </motion.nav>
   );
