@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { BaseProps, WithChildren, SizeProps } from '../../../types/common';
 
-interface HeadingProps extends BaseProps, WithChildren, SizeProps {
+export interface HeadingProps extends BaseProps, WithChildren, SizeProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 

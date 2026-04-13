@@ -3,7 +3,7 @@ import { BaseProps } from '../../../types/common';
 
 type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
 
-interface StepperProps extends BaseProps {
+export interface StepperProps extends BaseProps {
   steps: string[];
   currentStep: number;
   color?: {

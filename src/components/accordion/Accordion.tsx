@@ -8,13 +8,13 @@ import { BaseProps, RadiusProps, Radius, VariantProps } from '../../../types/com
 type Color = 'primary' | 'secondary' | 'danger' | 'success' | 'info' | 'warning' | string;
 type AccordionVariant = 'solid' | 'outline' | 'ghost' | 'glass' | 'elevated' | string;
 
-interface AccordionItem {
+export interface AccordionItem {
   title: string;
   content: React.ReactNode;
   disabled?: boolean;
 }
 
-interface AccordionProps extends BaseProps, RadiusProps {
+export interface AccordionProps extends BaseProps, RadiusProps {
   items: AccordionItem[];
   color?: Color;
   variant?: AccordionVariant;

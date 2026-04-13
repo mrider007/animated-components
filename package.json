@@ -1,6 +1,6 @@
 {
   "name": "my-animated-components",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "description": "A comprehensive React component library with built-in Framer Motion animations, Tailwind CSS styling, and full TypeScript support.",
   "main": "dist/index.js",

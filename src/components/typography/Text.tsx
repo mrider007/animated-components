@@ -1,7 +1,7 @@
 import React from 'react';
 import { BaseProps, WithChildren, SizeProps } from '../../../types/common';
 
-interface TextProps extends BaseProps, WithChildren, SizeProps {
+export interface TextProps extends BaseProps, WithChildren, SizeProps {
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
 }
 

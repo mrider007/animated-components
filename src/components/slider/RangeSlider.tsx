@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { BaseProps } from '../../../types/common';
 import { motionVariants } from '../../utils/motionVariants';
 
-interface RangeSliderProps extends BaseProps {
+export interface RangeSliderProps extends BaseProps {
   min: number;
   max: number;
   values: [number, number];
